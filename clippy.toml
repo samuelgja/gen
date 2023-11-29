@@ -1,0 +1,5 @@
+avoid-breaking-exported-api = false
+# set disallowed-names to be errror
+
+
+disallowed-names = ["toto", "tata", "titi"]
