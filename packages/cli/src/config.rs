@@ -23,18 +23,20 @@ pub struct Config {
 
 pub struct ConfigFile {
     pub case_type: TemplateCaseType,
+    pub open_editor_command: Option<String>,
 }
 
 impl ConfigFile {
     pub fn new() -> ConfigFile {
         ConfigFile {
             case_type: TemplateCaseType::new(),
+            open_editor_command: None,
         }
     }
 
     pub fn load_template_config(directory: &PathBuf) -> ConfigFile {
         let config_path = directory.join(CONFIG_FILE);
-        let config_content = fs::read_to_string(config_path);
+        let config_content = fs::read_to_string(&config_path);
 
         if config_content.is_err() {
             let config = TemplateAction::get_template_config();
@@ -42,7 +44,15 @@ impl ConfigFile {
             return config;
         }
         let config_content = config_content.unwrap();
-        let config: ConfigFile = serde_json::from_str(&config_content).unwrap();
+        let config: Result<ConfigFile, serde_json::Error> = serde_json::from_str(&config_content);
+
+        if config.is_err() {
+            let config = TemplateAction::get_template_config();
+            fs::remove_file(&config_path).unwrap();
+            config.save_template_config(directory);
+            return config;
+        }
+        let config = config.unwrap();
         config
     }
 

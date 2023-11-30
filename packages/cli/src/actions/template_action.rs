@@ -52,7 +52,7 @@ impl TemplateAction {
         template_config.save_template_config(&template_folder);
 
         TemplateAction::template_file_info();
-        TemplateAction::new_template_files(&template_folder);
+        TemplateAction::new_template_files(&config, &template_folder);
 
         let result = SearchFolder::search(&template_folder.path);
 
@@ -209,16 +209,16 @@ impl TemplateAction {
         );
         println!();
     }
-    pub fn new_template_files(template_folder: &TemplateFolder) {
+    pub fn new_template_files(config: &Config, template_folder: &TemplateFolder) {
         loop {
-            TemplateAction::new_template_file(template_folder);
+            TemplateAction::new_template_file(config, template_folder);
             let is_done = CliCommands::confirm("Do you want to add new template file?");
             if !is_done {
                 break;
             }
         }
     }
-    pub fn new_template_file(template_folder: &TemplateFolder) {
+    pub fn new_template_file(config: &Config, template_folder: &TemplateFolder) {
         let path = CliCommands::input_path(&template_folder.path, "Enter template file path");
 
         if path.is_err() {
@@ -253,6 +253,21 @@ impl TemplateAction {
         }
 
         template_folder.create_file(&path, &TEMPLATE_FILE_CONTENT);
+
+        if let Some(command) = &config.config.open_editor_command {
+            // run command
+            let full_command = format!("{} {}", command, path.to_str().unwrap());
+            let result = CliCommands::run_terminal_command(&full_command);
+            if result.is_err() {
+                println!();
+                println!(
+                    "{} {}",
+                    "🚨 Cannot open editor with command:".red(),
+                    full_command.bold().red()
+                );
+                println!();
+            }
+        }
         println!();
         println!("{}", "For continue, open new created file in your favorite editor. Then edit, save & that's it!".bright_white());
         println!();
@@ -268,7 +283,8 @@ impl TemplateAction {
         println!();
         println!(
             "{}",
-            "🕹️  Before start please select preferred case types:".green()
+            "🕹️  Before start please select preferred case types & custom code to open editor:"
+                .green()
         );
         println!();
         println!(
@@ -292,10 +308,26 @@ impl TemplateAction {
         }
 
         println!();
+
         let content_case_type =
             CliCommands::case_type(Some(CaseType::PascalCase), "Case type for template content");
         if content_case_type.is_ok() {
             config_file.case_type.content = content_case_type.unwrap();
+        }
+        println!();
+        let is_adding_terminal_command = CliCommands::confirm(
+            "Do you want to add terminal command to open template file in editor?",
+        );
+        if is_adding_terminal_command {
+            println!();
+            let open_editor_command = CliCommands::input(
+            "Enter any terminal command to open file in editor (example: code, atom, subl, vim, etc...)",);
+
+            if let Ok(open_editor_command) = open_editor_command {
+                if open_editor_command.len() > 0 {
+                    config_file.open_editor_command = Some(open_editor_command);
+                }
+            }
         }
 
         return config_file;

@@ -1,10 +1,12 @@
 pub struct CliCommands;
 use colored::Colorize;
-use inquire::{Confirm, Editor, Select, Text};
+use inquire::{Confirm, Select, Text};
 use std::{
     fmt::Display,
     fs,
+    io::Error,
     path::{Path, PathBuf},
+    process::Output,
 };
 
 use crate::case_util::CaseType;
@@ -123,16 +125,11 @@ impl CliCommands {
         }
     }
 
-    pub fn editor(text: &str) -> Result<String, String> {
-        // initial text will be green
-        // let editor_command = OsStr::new("vim");
-        let result = Editor::new(&format!("{}:", text)).prompt();
+    pub fn run_terminal_command(command: &str) -> Result<Output, Error> {
+        let args = command.split(" ").collect::<Vec<_>>();
+        let result = std::process::Command::new("sh").args(args).output();
 
-        if result.is_err() {
-            let text_formatted = format!("{} cannot be empty", text);
-            return Err(text_formatted);
-        }
-        Ok(result.unwrap())
+        result
     }
 
     pub fn case_type(case_type: Option<CaseType>, text: &str) -> Result<CaseType, String> {
