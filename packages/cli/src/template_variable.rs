@@ -1,23 +1,27 @@
+use std::path::Display;
+
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde_json::map::Iter;
 
-use crate::case_util::CaseType;
+use crate::{
+    case_util::CaseType,
+    constants::{TEMPLATE_SELECT_REGEX, TEMPLATE_VARIABLE_REGEX},
+};
 
-pub const TEMPLATE_VARIABLE: &str = "#var";
-pub const TEMPLATE_SELECT: &str = "#select";
-
-lazy_static! {
-    // it can match TEMPLATE_VARIABLE or TEMPLATE_VARIABLE + any number
-    // it can also be in format - #var1 or #var2 or
-    static ref TEMPLATE_VARIABLE_REGEX: Regex = Regex::new(r"\#var(\d+)?").unwrap();
-    static ref TEMPLATE_SELECT_REGEX: Regex = Regex::new(r"\#select(\d+)?").unwrap();
-}
-
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum TemplateVariable {
     Var,
     Select,
+}
+
+impl core::fmt::Display for TemplateVariable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TemplateVariable::Var => write!(f, "#var"),
+            TemplateVariable::Select => write!(f, "#select"),
+        }
+    }
 }
 
 impl TemplateVariable {
@@ -30,7 +34,7 @@ impl TemplateVariable {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct TemplateVariableParser {
     pub template_variable: TemplateVariable,
     pub index: usize,
@@ -175,7 +179,7 @@ mod tests {
     use super::TemplateVariable;
 
     #[test]
-    fn should_parse_with_itrator() {
+    fn should_parse_with_iterator() {
         let search = "abc #var #select #var1 #select1 #var2 #select_kebab";
         let mut iterator = TemplateVariable::parse_iter(search);
 
@@ -218,8 +222,24 @@ mod tests {
     }
 
     #[test]
+    fn should_parse_with_iterator_real_example() {
+        let search = "#var.tsx";
+        let mut iterator = TemplateVariable::parse_iter(search);
+
+        let result = iterator.next().unwrap();
+        assert_eq!(result.template_variable, TemplateVariable::Var);
+        assert_eq!(result.index, 0);
+        let value_from_indexes = search[result.start_index..result.end_index].to_owned();
+        assert_eq!(value_from_indexes, "#var");
+    }
+
+    #[test]
     fn should_test_template_variable() {
         let result = TemplateVariable::from_str("abc #var #select").unwrap();
+        assert_eq!(result.template_variable, TemplateVariable::Var);
+        assert_eq!(result.index, 0);
+
+        let result = TemplateVariable::from_str("##var.tsx").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Var);
         assert_eq!(result.index, 0);
 

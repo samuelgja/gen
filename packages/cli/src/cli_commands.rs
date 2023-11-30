@@ -1,7 +1,10 @@
 pub struct CliCommands;
-use std::{ffi::OsStr, fmt::Display};
-
+use colored::Colorize;
 use inquire::{Confirm, Editor, Select, Text};
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 use crate::case_util::CaseType;
 
@@ -15,6 +18,72 @@ impl CliCommands {
             return Err(text_formatted);
         }
         Ok(result.unwrap())
+    }
+
+    pub fn input_not_empty(text: &str, error_msg: &str) -> Result<String, String> {
+        loop {
+            let result = Text::new(&format!("{}:", text)).prompt();
+
+            if result.is_err() {
+                let text_formatted = format!("{} cannot be empty", text);
+                return Err(text_formatted);
+            }
+
+            let result = result.unwrap();
+            if result.len() > 0 {
+                return Ok(result);
+            }
+            println!();
+            println!("{}", format!("🚨 {}", error_msg).red());
+            println!();
+        }
+    }
+
+    pub fn input_path(template_path: &PathBuf, text: &str) -> Result<PathBuf, String> {
+        let mut loops_count = 0;
+        loop {
+            loops_count += 1;
+
+            if loops_count % 5 == 0 {
+                println!();
+                let is_exit =
+                    Confirm::new(&format!("Do you wish to exit?{} (y/n):", text)).prompt();
+                if is_exit.is_err() {
+                    return Err("".to_string());
+                }
+                let is_exit = is_exit.unwrap();
+                if is_exit {
+                    return Err("".to_string());
+                }
+            }
+            let result = CliCommands::input_not_empty(text, "Path cannot be empty");
+            if result.is_err() {
+                println!();
+                println!("{}", "🚨 Invalid path".red());
+                continue;
+            }
+            let result = result.unwrap();
+            // result string contain back path (..)
+            // so we need to check if it is valid path
+            if result.contains("..") {
+                println!();
+                println!("{}", "🚨 Path cannot contain '..'".red());
+                continue;
+            }
+
+            let path = Path::new(&result);
+            let full_path = template_path.join(path);
+            if full_path.exists() {
+                println!();
+                println!("{}", format!("🚨 Path {} already exists", result).red());
+                let can_over_write = CliCommands::confirm("Do you want to overwrite it?");
+                if can_over_write {
+                    return Ok(full_path);
+                }
+            }
+
+            return Ok(full_path);
+        }
     }
 
     pub fn editor(text: &str) -> Result<String, String> {

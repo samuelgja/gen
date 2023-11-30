@@ -1,6 +1,9 @@
 use crate::{
+    actions::TemplateAction,
     case_util::CaseType,
-    template::{Template, TemplateCaseType, TemplateFolder},
+    cli_commands::CliCommands,
+    constants::CONFIG_FILE,
+    template::{TemplateCaseType, TemplateFolder},
 };
 
 use serde::{Deserialize, Serialize};
@@ -13,6 +16,7 @@ use std::{
 pub struct Config {
     pub templates: Vec<TemplateFolder>,
     pub config: ConfigFile,
+    pub path: PathBuf,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -29,11 +33,13 @@ impl ConfigFile {
     }
 
     pub fn load_template_config(directory: &PathBuf) -> ConfigFile {
-        let config_path = directory.join("config.json");
+        let config_path = directory.join(CONFIG_FILE);
         let config_content = fs::read_to_string(config_path);
 
         if config_content.is_err() {
-            return ConfigFile::new();
+            let config = TemplateAction::get_template_config();
+            config.save_template_config(directory);
+            return config;
         }
         let config_content = config_content.unwrap();
         let config: ConfigFile = serde_json::from_str(&config_content).unwrap();
@@ -41,7 +47,7 @@ impl ConfigFile {
     }
 
     pub fn save_template_config(&self, directory: &PathBuf) {
-        let config_path = directory.join("config.json");
+        let config_path = directory.join(CONFIG_FILE);
         let config_content = serde_json::to_string_pretty(&self).unwrap();
         fs::write(config_path, config_content).unwrap();
     }
@@ -49,6 +55,9 @@ impl ConfigFile {
 
 impl Config {
     pub fn load_template_folders(directory: &PathBuf) -> Config {
+        if !directory.exists() {
+            fs::create_dir_all(directory).unwrap();
+        }
         // search directory and get all folders
         let entries = fs::read_dir(directory).unwrap();
         let folders = entries
@@ -70,6 +79,7 @@ impl Config {
         Config {
             templates: folders,
             config: config_file,
+            path: directory.to_path_buf(),
         }
     }
 }

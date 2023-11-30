@@ -1,5 +1,6 @@
 use crate::{
-    actions::TemplateAction, cli_commands::CliCommands, config::Config, template::Template,
+    actions::TemplateAction, cli_commands::CliCommands, config::Config,
+    constants::TEMPLATE_ROOT_FOLDER,
 };
 
 use std::{collections::HashSet, env, path::Path, process::Command};
@@ -40,14 +41,12 @@ impl CliParser {
         let arguments: Vec<String> = env::args().skip(1).collect();
         let cwd = env::current_dir().unwrap();
 
-        let config_dir_path = Path::new(&cwd).join(".gen").to_owned();
+        let config_dir_path = Path::new(&cwd).join(TEMPLATE_ROOT_FOLDER).to_owned();
         let global_config_dir_path = Path::new(&env::var("HOME").unwrap())
-            .join(".gen")
+            .join(TEMPLATE_ROOT_FOLDER)
             .to_owned();
 
         let mut config = Config::load_template_folders(&config_dir_path);
-
-        Template::load_template(&config.config, &config.templates[0]);
 
         let arguments: HashSet<String> = HashSet::from_iter(arguments.into_iter());
 
@@ -59,7 +58,7 @@ impl CliParser {
         }
 
         if arguments.contains("new") {
-            // let template = TemplateAction::new();
+            let template = TemplateAction::new(&config);
             // // remove template with same name
             // config.templates = config
             //     .templates
