@@ -8,7 +8,7 @@ pub const CLI_AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
 pub const CLI_HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 pub const CONFIG_FILE: &str = "_.json";
 
-pub const TEMPLATE_DOCS_URL: &str = "https://github.com/samkac/todo";
+pub const TEMPLATE_DOCS_URL: &str = "https://github.com/samuelgja/gen";
 pub const TEMPLATE_VARIABLE: &str = "#var";
 pub const TEMPLATE_SELECT: &str = "#select";
 pub const TEMPLATE_ROOT_FOLDER: &str = ".gen";

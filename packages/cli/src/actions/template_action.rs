@@ -142,28 +142,35 @@ impl TemplateAction {
         println!();
     }
 
-    pub fn print_content_file_info() {
-        println!();
-        println!("{}", "📁 Now let's add some files to the template".green());
-        println!();
-        println!("Template file contains:");
-        println!();
+    pub fn print_file_steps() {
+        let width = 48;
 
-        println!(
-            "{} {} relative path from project root directory, also with extensions",
+        let first_step = format!(
+            "{} {}",
             "1. 🐍 Template file".magenta(),
             "path:".bold().magenta()
         );
-        println!(
-            "{} {} can be in any format",
+        let second_step = format!(
+            "{} {}",
             "2. 📄 Template file".magenta(),
             "content:".bold().magenta()
         );
 
-        println!(
-            "{} {} available variables for both template file & content are ->",
+        let third_step = format!(
+            "{} {}",
             "3. 🧙 Template".magenta(),
             "variables:".bold().magenta(),
+        );
+
+        println!(
+            "{:width$} relative path from project root directory, also with extensions",
+            first_step,
+        );
+        println!("{:width$} can be in any format", second_step);
+
+        println!(
+            "{:width$} available variables for both template file & content are ->",
+            third_step,
         );
         println!();
         println!(
@@ -171,7 +178,15 @@ impl TemplateAction {
             TEMPLATE_VARIABLE.bold().magenta(),
             TEMPLATE_SELECT.bold().magenta()
         );
+    }
+    pub fn print_content_file_info() {
+        println!();
+        println!("{}", "📁 Now let's add some files to the template".green());
+        println!();
+        println!("Template file contains:");
+        println!();
 
+        TemplateAction::print_file_steps();
         println!();
         println!(
             "If there is any issues, just visit: {}",

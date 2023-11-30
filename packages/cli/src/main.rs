@@ -2,6 +2,7 @@ mod actions;
 mod case_util;
 mod cli_commands;
 mod cli_parser;
+mod commands;
 mod config;
 mod constants;
 mod search_folder;

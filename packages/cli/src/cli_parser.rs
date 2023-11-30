@@ -1,8 +1,9 @@
 use crate::{
     actions::TemplateAction,
     cli_commands::CliCommands,
+    commands::Commands,
     config::{Config, ConfigFile},
-    constants::TEMPLATE_ROOT_FOLDER,
+    constants::{CLI_VERSION, TEMPLATE_ROOT_FOLDER},
     template::{TemplateConfig, TemplateFolder},
 };
 use colored::Colorize;
@@ -39,53 +40,6 @@ use std::{collections::HashSet, env, fs, path::Path};
 #[derive(Debug)]
 pub struct CliParser {}
 
-enum Commands {
-    New,
-    Select,
-    Edit,
-    Delete,
-    Publish,
-    Unpublish,
-    Global,
-    Refresh,
-    Help,
-    Version,
-}
-impl Commands {
-    pub fn command_str(&self) -> String {
-        match self {
-            Commands::New => "new".to_owned(),
-            Commands::Edit => "edit".to_owned(),
-            Commands::Delete => "delete".to_owned(),
-            Commands::Publish => "publish".to_owned(),
-            Commands::Unpublish => "unpublish".to_owned(),
-            Commands::Help => "help".to_owned(),
-            Commands::Version => "version".to_owned(),
-            Commands::Global => "--global".to_owned(),
-            Commands::Refresh => "refresh".to_owned(),
-            Commands::Select => "select".to_owned(),
-        }
-    }
-
-    pub fn command_str_short(&self) -> String {
-        match self {
-            Commands::New => "n".to_owned(),
-            Commands::Edit => "e".to_owned(),
-            Commands::Delete => "d".to_owned(),
-            Commands::Publish => "p".to_owned(),
-            Commands::Unpublish => "u".to_owned(),
-            Commands::Help => "h".to_owned(),
-            Commands::Version => "v".to_owned(),
-            Commands::Global => "-g".to_owned(),
-            Commands::Refresh => "r".to_owned(),
-            Commands::Select => "s".to_owned(),
-        }
-    }
-
-    pub fn is_command(&self, arguments: &HashSet<String>) -> bool {
-        arguments.contains(&self.command_str()) || arguments.contains(&self.command_str_short())
-    }
-}
 impl CliParser {
     pub fn parse() {
         let vec_arguments: Vec<String> = env::args().skip(1).collect();
@@ -128,7 +82,12 @@ impl CliParser {
         };
 
         if Commands::Help.is_command(&arguments) || arguments.is_empty() {
-            println!("DICK");
+            Commands::print_help();
+            return;
+        }
+
+        if Commands::Version.is_command(&arguments) {
+            println!("{} {}", "Version:", CLI_VERSION.bold());
             return;
         }
 
@@ -139,6 +98,7 @@ impl CliParser {
                 return;
             }
             TemplateAction::new_template(&config);
+            return;
         }
 
         if Commands::Edit.is_command(&arguments) {
@@ -148,6 +108,7 @@ impl CliParser {
             }
 
             CliParser::edit_create_selected_template(config, &template_folder.unwrap());
+            return;
         }
 
         if Commands::Select.is_command(&arguments) {
@@ -160,7 +121,7 @@ impl CliParser {
                 return;
             }
             let template_folder = template_folder.unwrap();
-            // TODO
+            return;
         }
 
         if Commands::Delete.is_command(&arguments) {
@@ -200,6 +161,7 @@ impl CliParser {
                 loading.success("Template removed.".green());
                 loading.end();
             }
+            return;
         }
     }
 
