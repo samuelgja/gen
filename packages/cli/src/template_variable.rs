@@ -41,6 +41,7 @@ pub struct TemplateVariableParser {
     pub case_type: CaseType,
     pub start_index: usize,
     pub end_index: usize,
+    pub raw_value: String,
 }
 
 impl TemplateVariable {
@@ -126,6 +127,7 @@ impl TemplateVariable {
             case_type,
             end_index,
             start_index,
+            raw_value: value[start_index..end_index].to_owned(),
         })
     }
 
@@ -168,6 +170,7 @@ impl Iterator for TemplateVarIterator<'_> {
             case_type: result.case_type,
             index: result.index,
             template_variable: result.template_variable,
+            raw_value: result.raw_value,
         });
         self.last_index += result.end_index;
         return item_result;

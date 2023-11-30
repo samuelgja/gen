@@ -1,5 +1,3 @@
-use std::{fmt::format, fs, path::PathBuf};
-
 use crate::{
     case_util::CaseType,
     cli_commands::CliCommands,
@@ -7,12 +5,13 @@ use crate::{
     constants::{
         CONFIG_FILE, TEMPLATE_DOCS_URL, TEMPLATE_ROOT_FOLDER, TEMPLATE_SELECT, TEMPLATE_VARIABLE,
     },
+    search_folder::SearchFolder,
     template::{TemplateConfig, TemplateFolder},
     template_file_content::TEMPLATE_FILE_CONTENT,
+    template_variable::TemplateVariable,
 };
-
 use colored::Colorize;
-use regex::Regex;
+use std::{collections::HashMap, fs};
 
 pub struct TemplateAction;
 
@@ -54,6 +53,84 @@ impl TemplateAction {
 
         TemplateAction::template_file_info();
         TemplateAction::new_template_files(&template_folder);
+
+        let result = SearchFolder::search(&template_folder.path);
+
+        let select_variables = result
+            .variables
+            .iter()
+            .filter(|(_, variable)| variable.template_variable == TemplateVariable::Select)
+            .collect::<Vec<_>>();
+
+        if select_variables.len() > 0 {
+            println!();
+            println!(
+                "{}",
+                "📝 Now let's add some values (options) for #select variables".yellow(),
+            );
+            println!();
+            println!(
+                "{}",
+                "Note: Enter values separated byt comma (basic, complex, other, etc...)".italic()
+            );
+            println!();
+            let mut select_options = HashMap::new();
+            let mut index = 0;
+            for (_, variable) in select_variables.iter() {
+                index += 1;
+
+                let already_set_value =
+                    if let Some(select_options) = &template_config.select_options {
+                        select_options.get(&variable.raw_value)
+                    } else {
+                        None
+                    };
+
+                if already_set_value.is_some() {
+                    let is_change = CliCommands::confirm(&format!(
+                        "{}",
+                        "Select options already exist. Do you want to change it?"
+                    ));
+                    println!();
+                    if !is_change {
+                        println!(
+                            "{} {}",
+                            "Skipping".yellow(),
+                            variable.raw_value.bold().yellow()
+                        );
+                        println!();
+                        select_options.insert(
+                            variable.raw_value.to_owned(),
+                            already_set_value.unwrap().to_owned(),
+                        );
+                        continue;
+                    }
+                }
+                let result = CliCommands::input_not_empty(
+                    &format!(
+                        "📔 {}/{} Enter values for {}",
+                        index,
+                        select_variables.len(),
+                        &variable.raw_value.cyan().bold().italic()
+                    ),
+                    "Select values cannot be empty",
+                );
+
+                if result.is_err() {
+                    continue;
+                }
+
+                let result_vec = result
+                    .unwrap()
+                    .split(",")
+                    .map(|item| item.to_owned())
+                    .collect::<Vec<_>>();
+                select_options.insert(variable.raw_value.to_owned(), result_vec);
+            }
+
+            template_config.select_options = Some(select_options);
+            template_config.save_template_config(&template_folder);
+        }
 
         println!();
         println!(
