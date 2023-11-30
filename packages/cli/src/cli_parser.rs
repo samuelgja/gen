@@ -1,5 +1,5 @@
 use crate::{
-    actions::TemplateAction, config::Config,
+    actions::TemplateAction, cli_commands::CliCommands, config::Config,
     constants::TEMPLATE_ROOT_FOLDER,
 };
 
@@ -36,6 +36,50 @@ use std::{collections::HashSet, env, path::Path};
 #[derive(Debug)]
 pub struct CliParser {}
 
+enum Commands {
+    New,
+    List,
+    Edit,
+    Delete,
+    Publish,
+    Unpublish,
+    Global,
+    Help,
+    Version,
+}
+impl Commands {
+    pub fn command_str(&self) -> String {
+        match self {
+            Commands::New => "new".to_owned(),
+            Commands::List => "list".to_owned(),
+            Commands::Edit => "edit".to_owned(),
+            Commands::Delete => "delete".to_owned(),
+            Commands::Publish => "publish".to_owned(),
+            Commands::Unpublish => "unpublish".to_owned(),
+            Commands::Help => "help".to_owned(),
+            Commands::Version => "version".to_owned(),
+            Commands::Global => "--global".to_owned(),
+        }
+    }
+
+    pub fn command_str_short(&self) -> String {
+        match self {
+            Commands::New => "n".to_owned(),
+            Commands::List => "l".to_owned(),
+            Commands::Edit => "e".to_owned(),
+            Commands::Delete => "d".to_owned(),
+            Commands::Publish => "p".to_owned(),
+            Commands::Unpublish => "u".to_owned(),
+            Commands::Help => "h".to_owned(),
+            Commands::Version => "v".to_owned(),
+            Commands::Global => "-g".to_owned(),
+        }
+    }
+
+    pub fn is_command(&self, arguments: &HashSet<String>) -> bool {
+        arguments.contains(&self.command_str()) || arguments.contains(&self.command_str_short())
+    }
+}
 impl CliParser {
     pub fn parse() {
         let arguments: Vec<String> = env::args().skip(1).collect();
@@ -50,35 +94,25 @@ impl CliParser {
 
         let arguments: HashSet<String> = HashSet::from_iter(arguments);
 
-        let _is_global = arguments.contains("--global") || arguments.contains("-g");
+        let is_global = Commands::Global.is_command(&arguments);
 
-        if arguments.contains("--help") || arguments.contains("-h") || arguments.is_empty() {
+        if Commands::Help.is_command(&arguments) || arguments.is_empty() {
             println!("DICK");
             return;
         }
 
-        if arguments.contains("new") {
-            TemplateAction::new(&config);
-            // // remove template with same name
-            // config.templates = config
-            //     .templates
-            //     .iter()
-            //     .filter(|item| item.name != template.name)
-            //     .map(|item| item.to_owned())
-            //     .collect();
-            // config.templates.push(template);
-            // config.save(&config_dir_path).unwrap();
-            // return;
+        if Commands::New.is_command(&arguments) {
+            TemplateAction::new_template(&config);
         }
 
-        // if arguments.contains("list") {
-        //     let template_folders = config
-        //         .templates
-        //         .iter()
-        //         .map(|item| item.name.to_owned())
-        //         .collect::<Vec<_>>();
-
-        //     let selected = Commands::select("📝 Select template to use", &config.templates);
-        // }
+        if Commands::List.is_command(&arguments) {
+            let template_folders = config
+                .templates
+                .iter()
+                .map(|item| item.name.to_owned())
+                .collect::<Vec<_>>();
+            println!();
+            let selected = CliCommands::select("📝 Select template to use", &config.templates);
+        }
     }
 }

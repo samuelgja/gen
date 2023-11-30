@@ -16,7 +16,7 @@ use std::{collections::HashMap, fs};
 pub struct TemplateAction;
 
 impl TemplateAction {
-    pub fn new(config: &Config) {
+    pub fn new_template(config: &Config) {
         println!();
         println!("{}", "📂 Creating of a new template -> ".green());
         println!();
@@ -87,7 +87,9 @@ impl TemplateAction {
                     };
 
                 if already_set_value.is_some() {
-                    let is_change = CliCommands::confirm("Select options already exist. Do you want to change it?");
+                    let is_change = CliCommands::confirm(
+                        "Select options already exist. Do you want to change it?",
+                    );
                     println!();
                     if !is_change {
                         println!(

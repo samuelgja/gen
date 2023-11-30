@@ -1,9 +1,12 @@
-use crate::{
-    case_util::CaseType, constants::CONFIG_FILE,
-};
+use crate::{case_util::CaseType, constants::CONFIG_FILE};
 
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::{
+    collections::HashMap,
+    fmt::{Display, Formatter},
+    fs,
+    path::PathBuf,
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TemplateCaseType {
@@ -19,10 +22,16 @@ impl TemplateCaseType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TemplateFolder {
     pub name: String,
     pub path: PathBuf,
+}
+
+impl Display for TemplateFolder {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 impl TemplateFolder {

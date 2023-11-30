@@ -10,7 +10,7 @@ pub enum CaseType {
 }
 
 impl CaseType {
-    pub fn from_str(value: &str) -> CaseType {
+    pub fn to_case_from_str(value: &str) -> CaseType {
         let snake_case = value.is_case(Case::Snake);
         let kebab_case = value.is_case(Case::Kebab);
         let camel_case = value.is_case(Case::Camel);
@@ -39,35 +39,35 @@ mod tests {
 
     #[test]
     fn should_test_case() {
-        let result = CaseType::from_str("hello_world");
+        let result = CaseType::to_case_from_str("hello_world");
         assert_eq!(result, CaseType::SnakeCase);
 
-        let result = CaseType::from_str("hello-world");
+        let result = CaseType::to_case_from_str("hello-world");
         println!("{:?}", result);
         assert_eq!(result, CaseType::KebabCase);
 
-        let result = CaseType::from_str("helloWorld");
+        let result = CaseType::to_case_from_str("helloWorld");
         assert_eq!(result, CaseType::CamelCase);
 
-        let result = CaseType::from_str("HelloWorld");
+        let result = CaseType::to_case_from_str("HelloWorld");
         assert_eq!(result, CaseType::PascalCase);
 
-        let result = CaseType::from_str("helloWorld-");
+        let result = CaseType::to_case_from_str("helloWorld-");
         assert_eq!(result, CaseType::Unknown);
 
-        let result = CaseType::from_str("helloWorld_");
+        let result = CaseType::to_case_from_str("helloWorld_");
         assert_eq!(result, CaseType::Unknown);
 
-        let result = CaseType::from_str("helloWorld_");
+        let result = CaseType::to_case_from_str("helloWorld_");
         assert_eq!(result, CaseType::Unknown);
 
-        let result = CaseType::from_str("helloWorld_");
+        let result = CaseType::to_case_from_str("helloWorld_");
         assert_eq!(result, CaseType::Unknown);
 
-        let result = CaseType::from_str("helloWorld_");
+        let result = CaseType::to_case_from_str("helloWorld_");
         assert_eq!(result, CaseType::Unknown);
 
-        let result = CaseType::from_str("helloWorld_");
+        let result = CaseType::to_case_from_str("helloWorld_");
         assert_eq!(result, CaseType::Unknown);
     }
 }

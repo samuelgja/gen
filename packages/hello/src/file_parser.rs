@@ -205,7 +205,7 @@ impl FileParser {
                 let extension = path.extension().unwrap().to_str().unwrap();
                 let base_name = path.file_name().unwrap().to_str().unwrap();
                 let base_name = base_name.replace(&format!(".{}", extension), "");
-                let case = CaseType::from_str(base_name.as_str());
+                let case = CaseType::to_case_from_str(base_name.as_str());
                 let base_name = base_name.to_case(Case::Snake);
                 let parent_path = path.parent().unwrap();
                 let parent_name = parent_path.file_name();
@@ -233,7 +233,7 @@ impl FileParser {
                 let parent_name = parent_name.unwrap().to_str().unwrap().to_string();
 
                 let not_same_name_folder: String;
-                if &base_name_full == &parent_name {
+                if base_name_full == parent_name {
                     if let Some(parent_parent_name) = parent_path.parent() {
                         not_same_name_folder = parent_parent_name.to_str().unwrap().to_string();
                     } else {

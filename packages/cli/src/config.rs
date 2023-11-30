@@ -7,7 +7,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
-    path::{PathBuf},
+    path::{Path, PathBuf},
 };
 
 #[derive(Debug)]
@@ -32,7 +32,7 @@ impl ConfigFile {
         }
     }
 
-    pub fn load_template_config(directory: &PathBuf) -> ConfigFile {
+    pub fn load_template_config(directory: &Path) -> ConfigFile {
         let config_path = directory.join(CONFIG_FILE);
         let config_content = fs::read_to_string(&config_path);
 
@@ -50,11 +50,11 @@ impl ConfigFile {
             config.save_template_config(directory);
             return config;
         }
-        
+
         config.unwrap()
     }
 
-    pub fn save_template_config(&self, directory: &PathBuf) {
+    pub fn save_template_config(&self, directory: &Path) {
         let config_path = directory.join(CONFIG_FILE);
         let config_content = serde_json::to_string_pretty(&self).unwrap();
         fs::write(config_path, config_content).unwrap();

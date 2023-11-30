@@ -3,8 +3,8 @@
 members = ['./packages/hello', "packages/cli"]
 
 [profile.release]
-# lto = "fat"
-# codegen-units = 1
+lto = "fat"
+codegen-units = 1
 
 
 [workspace.dependencies]
