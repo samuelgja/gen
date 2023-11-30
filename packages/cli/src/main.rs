@@ -6,6 +6,7 @@ mod config;
 mod constants;
 mod search_folder;
 mod template;
+mod template_file_content;
 mod template_variable;
 
 use cli_parser::CliParser;

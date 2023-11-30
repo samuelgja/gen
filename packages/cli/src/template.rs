@@ -3,7 +3,7 @@ use crate::{
 };
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, fmt::Display, fs, path::PathBuf};
+use std::{borrow::Cow, collections::HashMap, fmt::Display, fs, path::PathBuf};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TemplateCaseType {
@@ -26,12 +26,13 @@ pub struct TemplateFolder {
 }
 
 impl TemplateFolder {
-    pub fn create_file(&self, path: &PathBuf) {
+    pub fn create_file(&self, path: &PathBuf, content: &str) {
         let directory = path.parent().unwrap();
         if !directory.exists() {
             fs::create_dir_all(directory).unwrap();
         }
-        fs::write(path, "").unwrap();
+
+        fs::write(path, content).unwrap();
     }
 }
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -39,6 +40,7 @@ pub struct TemplateConfig {
     pub name: String,
     pub description: String,
     pub case_type: Option<TemplateCaseType>,
+    pub select_options: Option<HashMap<String, Vec<String>>>,
 }
 
 impl TemplateConfig {
@@ -47,6 +49,7 @@ impl TemplateConfig {
             name: "".to_string(),
             description: "".to_string(),
             case_type: None,
+            select_options: None,
         }
     }
 

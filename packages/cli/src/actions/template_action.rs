@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fmt::format, fs, path::PathBuf};
 
 use crate::{
     case_util::CaseType,
@@ -8,6 +8,7 @@ use crate::{
         CONFIG_FILE, TEMPLATE_DOCS_URL, TEMPLATE_ROOT_FOLDER, TEMPLATE_SELECT, TEMPLATE_VARIABLE,
     },
     template::{TemplateConfig, TemplateFolder},
+    template_file_content::TEMPLATE_FILE_CONTENT,
 };
 
 use colored::Colorize;
@@ -46,14 +47,21 @@ impl TemplateAction {
             name: name.clone(),
             path: template_path.to_path_buf(),
         };
-
-        let mut template_config = TemplateConfig::new();
+        let mut template_config = TemplateConfig::load_template_config(&template_folder);
         template_config.name = name;
         template_config.description = description;
-
         template_config.save_template_config(&template_folder);
 
-        TemplateAction::new_template_file(&template_folder);
+        TemplateAction::template_file_info();
+        TemplateAction::new_template_files(&template_folder);
+
+        println!();
+        println!(
+            "{} {}",
+            "Done. Template created at:".green(),
+            template_path.to_str().unwrap().bold().green()
+        );
+        println!();
     }
 
     pub fn print_content_file_info() {
@@ -108,8 +116,7 @@ impl TemplateAction {
             ".style.ts"
         )
     }
-
-    pub fn new_template_file(template_folder: &TemplateFolder) {
+    pub fn template_file_info() {
         println!();
         println!("{}", "📄 Creating of a new template file -> ".green());
         println!();
@@ -124,6 +131,17 @@ impl TemplateAction {
             "If file_name do not contain any variable, it will be in append mode. Useful for index files, mod files, headers, etc..".italic()
         );
         println!();
+    }
+    pub fn new_template_files(template_folder: &TemplateFolder) {
+        loop {
+            TemplateAction::new_template_file(template_folder);
+            let is_done = CliCommands::confirm("Do you want to add new template file?");
+            if !is_done {
+                break;
+            }
+        }
+    }
+    pub fn new_template_file(template_folder: &TemplateFolder) {
         let path = CliCommands::input_path(&template_folder.path, "Enter template file path");
 
         if path.is_err() {
@@ -131,7 +149,42 @@ impl TemplateAction {
         }
 
         let path = path.unwrap();
-        template_folder.create_file(&path);
+
+        if path.exists() && path.is_file() {
+            println!();
+            println!(
+                "{} {}",
+                "🚨 File already exist at:".red(),
+                path.to_str().unwrap().bold().red()
+            );
+            println!();
+            let is_continue = CliCommands::confirm("Do you want to overwrite it?");
+            if !is_continue {
+                return;
+            }
+
+            fs::remove_file(&path).unwrap();
+        }
+        if path.exists() && path.is_dir() {
+            println!();
+            println!(
+                "{} {}",
+                "🚨 Path already exist and it's at:".red(),
+                path.to_str().unwrap().bold().red()
+            );
+            return;
+        }
+
+        template_folder.create_file(&path, &TEMPLATE_FILE_CONTENT);
+        println!();
+        println!("{}", "For continue, open new created file in your favorite editor. Then edit, save & that's it!".bright_white());
+        println!();
+        println!(
+            "{} {}",
+            "✅ Template file created at:",
+            path.to_str().unwrap().bold().green()
+        );
+        println!();
     }
 
     pub fn get_template_config() -> ConfigFile {

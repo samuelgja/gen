@@ -3,6 +3,7 @@ use colored::Colorize;
 use inquire::{Confirm, Editor, Select, Text};
 use std::{
     fmt::Display,
+    fs,
     path::{Path, PathBuf},
 };
 
@@ -73,11 +74,47 @@ impl CliCommands {
 
             let path = Path::new(&result);
             let full_path = template_path.join(path);
+
+            let mut wrapped_parent = full_path.to_owned();
+            while let Some(parent) = wrapped_parent.to_owned().parent() {
+                if parent == template_path {
+                    break;
+                }
+                if parent.is_file() {
+                    println!();
+                    println!(
+                        "{}",
+                        format!(
+                            "🚨 Parent path {} is file and not directory.",
+                            parent.to_str().unwrap()
+                        )
+                        .red()
+                    );
+                    let can_over_write = CliCommands::confirm("Do you want to overwrite it?");
+                    if !can_over_write {
+                        return Err("".to_string());
+                    }
+
+                    fs::remove_file(&parent).unwrap();
+                    break;
+                }
+
+                if !parent.exists() {
+                    break;
+                }
+                wrapped_parent = parent.to_path_buf();
+            }
+
             if full_path.exists() {
                 println!();
                 println!("{}", format!("🚨 Path {} already exists", result).red());
                 let can_over_write = CliCommands::confirm("Do you want to overwrite it?");
                 if can_over_write {
+                    if path.is_dir() {
+                        fs::remove_dir_all(&full_path).unwrap();
+                        return Ok(full_path);
+                    }
+                    fs::remove_file(&full_path).unwrap();
                     return Ok(full_path);
                 }
             }
