@@ -52,7 +52,7 @@ impl Commands {
     pub fn command_description(&self) -> String {
         let support_global = "Support global flag, second argument [template_name]";
         match self {
-            Commands::New => format!("Create new template. {}", support_global).to_owned(),
+            Commands::New => format!("Create new template. If running local template, template folder will be generated to current (cwd) path. {}", support_global).to_owned(),
             Commands::Edit => format!("Edit template. {}", support_global).to_owned(),
             Commands::Delete => format!("Delete template. {}", support_global).to_owned(),
             Commands::Publish => format!("Publish template. {}", support_global).to_owned(),
@@ -112,17 +112,17 @@ impl Commands {
         println!();
         println!(
             "{:width$}: {}",
-            "#var".green(),
+            "#var".green().bold(),
             "Simple as #var or #var1, #var2, #var3, ..., or #var_anything",
         );
         println!(
             "{:width$}: {}",
-            "#select".green(),
+            "#select".green().bold(),
             "Simple as #select or #select1, #select2, #select3, ..., or #select_anything",
         );
         println!(
             "{:width$}: {}",
-            "Case support".green(),
+            "Case support".green().bold(),
             "#var and #select also support suffix with casing. _kebab, _snake, _camel, _pascal.\nFor example #var_kebab or #select_author_camel. So case words are reserved.",
         );
         println!();
