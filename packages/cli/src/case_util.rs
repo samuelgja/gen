@@ -3,11 +3,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone)]
 pub enum CaseType {
-    SnakeCase,
-    KebabCase,
-    CamelCase,
-    PascalCase,
-    Unknown,
+    SnakeCase,  // snake_case
+    KebabCase,  // kebab-case
+    CamelCase,  // camelCase
+    PascalCase, // PascalCase
+    Unknown,    // none
 }
 
 impl CaseType {

@@ -13,3 +13,4 @@ serde_json = { workspace = true }
 convert_case = { workspace = true }
 rust_search = { workspace = true }
 regex = { workspace = true }
+lazy_static = "1.4.0"

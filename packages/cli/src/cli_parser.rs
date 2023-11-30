@@ -1,4 +1,6 @@
-use crate::{actions::TemplateAction, commands::Commands, config::Config};
+use crate::{
+    actions::TemplateAction, cli_commands::CliCommands, config::Config, template::Template,
+};
 
 use std::{collections::HashSet, env, path::Path, process::Command};
 
@@ -43,7 +45,9 @@ impl CliParser {
             .join(".gen")
             .to_owned();
 
-        let mut config = Config::load_or_new(&config_dir_path);
+        let mut config = Config::load_template_folders(&config_dir_path);
+
+        Template::load_template(&config.config, &config.templates[0]);
 
         let arguments: HashSet<String> = HashSet::from_iter(arguments.into_iter());
 
@@ -55,27 +59,27 @@ impl CliParser {
         }
 
         if arguments.contains("new") {
-            let template = TemplateAction::new();
-            // remove template with same name
-            config.templates = config
-                .templates
-                .iter()
-                .filter(|item| item.name != template.name)
-                .map(|item| item.to_owned())
-                .collect();
-            config.templates.push(template);
-            config.save(&config_dir_path).unwrap();
-            return;
+            // let template = TemplateAction::new();
+            // // remove template with same name
+            // config.templates = config
+            //     .templates
+            //     .iter()
+            //     .filter(|item| item.name != template.name)
+            //     .map(|item| item.to_owned())
+            //     .collect();
+            // config.templates.push(template);
+            // config.save(&config_dir_path).unwrap();
+            // return;
         }
 
-        if arguments.contains("list") {
-            let template_names = config
-                .templates
-                .iter()
-                .map(|item| item.name.to_owned())
-                .collect::<Vec<_>>();
+        // if arguments.contains("list") {
+        //     let template_folders = config
+        //         .templates
+        //         .iter()
+        //         .map(|item| item.name.to_owned())
+        //         .collect::<Vec<_>>();
 
-            let selected = Commands::select("📝 Select template to use", &config.templates);
-        }
+        //     let selected = Commands::select("📝 Select template to use", &config.templates);
+        // }
     }
 }

@@ -1,31 +1,79 @@
-use crate::case_util::CaseType;
+use crate::{case_util::CaseType, config::ConfigFile, search_folder::SearchFolder};
 use colored::Colorize;
-use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, fmt::Display};
 
-pub const TEMPLATE_VARIABLE: &str = "$_NAME";
-pub const TEMPLATE_FILE_VARIABLE: &str = "$_FILE_NAME";
-pub const TEMPLATE_FOLDER_OPTION: &str = "$_FOLDER_OPTION";
-pub const TEMPLATE_DOCS_URL: &str = "https://something.com";
+use serde::{Deserialize, Serialize};
+use std::{borrow::Cow, fmt::Display, fs, path::PathBuf};
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct TemplatePath {
-    pub path_parts: Vec<String>,
-    pub path_case_type: CaseType,
+pub struct TemplateCaseType {
+    pub content: CaseType,
+    pub file: CaseType,
+}
+impl TemplateCaseType {
+    pub fn new() -> TemplateCaseType {
+        TemplateCaseType {
+            content: CaseType::PascalCase,
+            file: CaseType::KebabCase,
+        }
+    }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug)]
 pub struct TemplateFile {
     pub content: String,
-    pub case_type: CaseType,
+    pub case_type: TemplateCaseType,
     pub is_append_mode: bool,
-    pub paths: Vec<TemplatePath>,
+    pub path: Vec<String>,
+    pub alternative_paths: Vec<Vec<String>>,
+}
+
+#[derive(Debug)]
+pub struct TemplateFolder {
+    pub name: String,
+    pub path: PathBuf,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TemplateConfig {
+    pub name: String,
+    pub description: String,
+    pub case_type: TemplateCaseType,
+}
+
+impl TemplateConfig {
+    pub fn new() -> TemplateConfig {
+        TemplateConfig {
+            name: "".to_string(),
+            description: "".to_string(),
+            case_type: TemplateCaseType::new(),
+        }
+    }
+
+    pub fn load_template_config(template_folder: &TemplateFolder) -> TemplateConfig {
+        let config_path = template_folder.path.join("config.json");
+        let config_content = fs::read_to_string(config_path);
+
+        if config_content.is_err() {
+            return TemplateConfig::new();
+        }
+        let config_content = config_content.unwrap();
+        let config: TemplateConfig = serde_json::from_str(&config_content).unwrap();
+        config
+    }
+
+    pub fn save_template_config(&self, template_folder: &TemplateFolder) {
+        let config_path = template_folder.path.join("config.json");
+        let config_content = serde_json::to_string_pretty(&self).unwrap();
+        fs::write(config_path, config_content).unwrap();
+    }
+}
+
+#[derive(Debug)]
 pub struct Template {
     pub name: String,
     pub description: String,
     pub files: Vec<TemplateFile>,
+    pub is_global: bool,
 }
 
 impl Display for Template {
@@ -52,16 +100,16 @@ impl Template {
             name: "".to_string(),
             description: "".to_string(),
             files: Vec::new(),
+            is_global: false,
         }
     }
 
-    pub fn load_from_json(json: &str) -> Result<Template, serde_json::Error> {
-        let templates: Template = serde_json::from_str(json)?;
-        Ok(templates)
-    }
+    pub fn load_template(config_file: &ConfigFile, template_folder: &TemplateFolder) {
+        let name = template_folder.name.to_owned();
+        let template_config = TemplateConfig::load_template_config(template_folder);
 
-    pub fn to_json(&self) -> Result<String, serde_json::Error> {
-        let json = serde_json::to_string(self)?;
-        Ok(json)
+        let search = SearchFolder::search(&template_folder.path);
+        println!("");
+        println!("search: {:?}", search);
     }
 }

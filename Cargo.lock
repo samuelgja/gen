@@ -62,6 +62,7 @@ dependencies = [
  "colored",
  "convert_case",
  "inquire",
+ "lazy_static",
  "regex",
  "rust_search",
  "serde",

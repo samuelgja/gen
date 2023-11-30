@@ -1,11 +1,11 @@
-pub struct Commands;
+pub struct CliCommands;
 use std::{ffi::OsStr, fmt::Display};
 
 use inquire::{Confirm, Editor, Select, Text};
 
 use crate::case_util::CaseType;
 
-impl Commands {
+impl CliCommands {
     pub fn input(text: &str) -> Result<String, String> {
         // initial text will be green
         let result = Text::new(&format!("{}:", text)).prompt();

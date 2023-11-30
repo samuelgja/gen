@@ -1,63 +1,75 @@
-use std::path::{self, Path, PathBuf};
+use crate::{
+    case_util::CaseType,
+    template::{Template, TemplateCaseType, TemplateFolder},
+};
 
-use crate::template::Template;
 use serde::{Deserialize, Serialize};
+use std::{
+    fs,
+    path::{self, Path, PathBuf},
+};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug)]
 pub struct Config {
-    pub templates: Vec<Template>,
+    pub templates: Vec<TemplateFolder>,
+    pub config: ConfigFile,
 }
 
-impl Config {
-    pub fn new() -> Self {
-        Config { templates: vec![] }
+#[derive(Debug, Serialize, Deserialize, Clone)]
+
+pub struct ConfigFile {
+    pub case_type: TemplateCaseType,
+}
+
+impl ConfigFile {
+    pub fn new() -> ConfigFile {
+        ConfigFile {
+            case_type: TemplateCaseType::new(),
+        }
     }
 
-    pub fn from_json(json: &str) -> Config {
-        let config: Config = serde_json::from_str(&json).unwrap();
+    pub fn load_template_config(directory: &PathBuf) -> ConfigFile {
+        let config_path = directory.join("config.json");
+        let config_content = fs::read_to_string(config_path);
+
+        if config_content.is_err() {
+            return ConfigFile::new();
+        }
+        let config_content = config_content.unwrap();
+        let config: ConfigFile = serde_json::from_str(&config_content).unwrap();
         config
     }
 
-    pub fn to_json(&self) -> Result<String, serde_json::Error> {
-        let json = serde_json::to_string(self)?;
-        Ok(json)
+    pub fn save_template_config(&self, directory: &PathBuf) {
+        let config_path = directory.join("config.json");
+        let config_content = serde_json::to_string_pretty(&self).unwrap();
+        fs::write(config_path, config_content).unwrap();
     }
+}
 
-    pub fn load(directory: &PathBuf) -> Option<Config> {
-        let path = directory.join("config.json");
-        let json = std::fs::read_to_string(path);
-        if json.is_err() {
-            return None;
-        }
-        let json = json.unwrap();
-        let config = Config::from_json(&json);
-        Some(config)
-    }
+impl Config {
+    pub fn load_template_folders(directory: &PathBuf) -> Config {
+        // search directory and get all folders
+        let entries = fs::read_dir(directory).unwrap();
+        let folders = entries
+            .filter_map(|entry| {
+                let entry = entry.unwrap();
+                let path = entry.path();
+                if path.is_dir() {
+                    return Some(TemplateFolder {
+                        name: path.file_name().unwrap().to_str().unwrap().to_string(),
+                        path,
+                    });
+                }
+                None
+            })
+            .collect::<Vec<_>>();
 
-    pub fn load_or_new(directory: &PathBuf) -> Config {
-        let config = Config::load(directory);
-        if config.is_none() {
-            return Config::new();
-        }
-        config.unwrap()
-    }
+        let config_file = ConfigFile::load_template_config(directory);
 
-    pub fn save(&self, directory: &PathBuf) -> Result<(), ()> {
-        let path = directory.join("config.json");
-        let json = self.to_json();
-        if json.is_err() {
-            return Err(());
+        Config {
+            templates: folders,
+            config: config_file,
         }
-        let json = json.unwrap();
-        let result = std::fs::create_dir_all(directory);
-        if result.is_err() {
-            return Err(());
-        }
-
-        let result = std::fs::write(path, json);
-        if result.is_err() {
-            return Err(());
-        }
-        Ok(())
     }
 }
