@@ -1,10 +1,11 @@
+mod actions;
 mod case_util;
 mod cli_parser;
 mod commands;
-mod template_type;
+mod config;
+mod template;
 
 use cli_parser::CliParser;
-use dialoguer::{theme::ColorfulTheme, Confirm, Select, Sort};
 
 /**
  * CLI TOOL - name gen - but gen is name of the tool, so it will be in bash profile.
@@ -28,5 +29,6 @@ use dialoguer::{theme::ColorfulTheme, Confirm, Select, Sort};
  */
 fn main() {
     let parsed = CliParser::parse();
-    print!("{:?}", parsed);
+    // print!("{:?}", parsed);
+    // TemplateAction::new();
 }

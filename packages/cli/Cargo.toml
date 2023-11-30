@@ -7,8 +7,9 @@ edition = "2021"
 
 [dependencies]
 colored = { workspace = true }
-dialoguer = { workspace = true }
+inquire = { version = "*", features = ["editor"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 convert_case = { workspace = true }
 rust_search = { workspace = true }
+regex = { workspace = true }

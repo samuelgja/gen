@@ -1,7 +1,7 @@
 use convert_case::{Case, Casing};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Clone)]
 pub enum CaseType {
     SnakeCase,
     KebabCase,
@@ -31,6 +31,16 @@ impl CaseType {
         }
 
         return CaseType::Unknown;
+    }
+
+    pub fn to_str_name(&self) -> &str {
+        match self {
+            CaseType::SnakeCase => "snake_case",
+            CaseType::KebabCase => "kebab-case",
+            CaseType::CamelCase => "camelCase",
+            CaseType::PascalCase => "PascalCase",
+            CaseType::Unknown => "unknown",
+        }
     }
 }
 

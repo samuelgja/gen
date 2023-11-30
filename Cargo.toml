@@ -11,9 +11,9 @@ members = ['./packages/hello', "packages/cli"]
 colored = "2.0.4"
 indexmap = "2.1.0"
 clap = { version = "4.4.10", features = ["derive"] }
-dialoguer = "0.11.0"
 serde = { version = "1.0.193", features = ["derive"] }
 serde_json = "1.0.108"
 rust_search = "2.1.0"
 convert_case = "0.6.0"
 git2 = "0.18.1"
+regex = "1.10.2"
