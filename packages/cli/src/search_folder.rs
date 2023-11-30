@@ -4,7 +4,7 @@ use crate::{
 };
 use rust_search::SearchBuilder;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{HashMap},
     path::{Path, PathBuf},
 };
 
@@ -27,7 +27,7 @@ pub struct SearchResult {
 impl SearchFolder {
     pub fn search_files(template_path: &PathBuf) -> Vec<SearchItem> {
         let search: Vec<String> = SearchBuilder::default()
-            .location(&template_path)
+            .location(template_path)
             .strict()
             .ignore_case()
             .hidden()
@@ -66,7 +66,7 @@ impl SearchFolder {
         let files = SearchFolder::search_files(template_path);
         let mut variables = HashMap::new();
 
-        if files.len() == 0 {
+        if files.is_empty() {
             return SearchResult {
                 files,
                 variables,
@@ -101,7 +101,7 @@ impl SearchFolder {
         SearchResult {
             files,
             variables,
-            is_within_one_folder: is_within_one_folder,
+            is_within_one_folder,
         }
     }
 }

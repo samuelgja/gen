@@ -32,7 +32,7 @@ use cli_parser::CliParser;
  * --search -s - will search for templates on github
  */
 fn main() {
-    let parsed = CliParser::parse();
+    CliParser::parse();
     // print!("{:?}", parsed);
     // TemplateAction::new();
 }

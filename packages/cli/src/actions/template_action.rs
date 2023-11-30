@@ -52,7 +52,7 @@ impl TemplateAction {
         template_config.save_template_config(&template_folder);
 
         TemplateAction::template_file_info();
-        TemplateAction::new_template_files(&config, &template_folder);
+        TemplateAction::new_template_files(config, &template_folder);
 
         let result = SearchFolder::search(&template_folder.path);
 
@@ -62,7 +62,7 @@ impl TemplateAction {
             .filter(|(_, variable)| variable.template_variable == TemplateVariable::Select)
             .collect::<Vec<_>>();
 
-        if select_variables.len() > 0 {
+        if !select_variables.is_empty() {
             println!();
             println!(
                 "{}",
@@ -87,10 +87,7 @@ impl TemplateAction {
                     };
 
                 if already_set_value.is_some() {
-                    let is_change = CliCommands::confirm(&format!(
-                        "{}",
-                        "Select options already exist. Do you want to change it?"
-                    ));
+                    let is_change = CliCommands::confirm("Select options already exist. Do you want to change it?");
                     println!();
                     if !is_change {
                         println!(
@@ -122,7 +119,7 @@ impl TemplateAction {
 
                 let result_vec = result
                     .unwrap()
-                    .split(",")
+                    .split(',')
                     .map(|item| item.to_owned())
                     .collect::<Vec<_>>();
                 select_options.insert(variable.raw_value.to_owned(), result_vec);
@@ -145,41 +142,35 @@ impl TemplateAction {
         println!();
         println!("{}", "📁 Now let's add some files to the template".green());
         println!();
-        println!("{}", "Template file contains:");
+        println!("Template file contains:");
         println!();
 
         println!(
-            "{} {} {}",
+            "{} {} relative path from project root directory, also with extensions",
             "1. 🐍 Template file".magenta(),
-            "path:".bold().magenta(),
-            "relative path from project root directory, also with extensions"
+            "path:".bold().magenta()
         );
         println!(
-            "{} {} {}",
+            "{} {} can be in any format",
             "2. 📄 Template file".magenta(),
-            "content:".bold().magenta(),
-            "can be in any format"
+            "content:".bold().magenta()
         );
 
         println!(
-            "{} {} {}",
+            "{} {} available variables for both template file & content are ->",
             "3. 🧙 Template".magenta(),
             "variables:".bold().magenta(),
-            "available variables for both template file & content are ->",
         );
         println!();
         println!(
-            "{} {} {} {}",
+            "{} for text inputs and {} for dropdowns selections.",
             TEMPLATE_VARIABLE.bold().magenta(),
-            "for text inputs and",
-            TEMPLATE_SELECT.bold().magenta(),
-            "for dropdowns selections."
+            TEMPLATE_SELECT.bold().magenta()
         );
 
         println!();
         println!(
-            "{} {}",
-            "If there is any issues, just visit:",
+            "If there is any issues, just visit: {}",
             TEMPLATE_DOCS_URL.yellow().underline().bold()
         );
     }
@@ -252,7 +243,7 @@ impl TemplateAction {
             return;
         }
 
-        template_folder.create_file(&path, &TEMPLATE_FILE_CONTENT);
+        template_folder.create_file(&path, TEMPLATE_FILE_CONTENT);
 
         if let Some(command) = &config.config.open_editor_command {
             // run command
@@ -272,8 +263,7 @@ impl TemplateAction {
         println!("{}", "For continue, open new created file in your favorite editor. Then edit, save & that's it!".bright_white());
         println!();
         println!(
-            "{} {}",
-            "✅ Template file created at:",
+            "✅ Template file created at: {}",
             path.to_str().unwrap().bold().green()
         );
         println!();
@@ -324,12 +314,12 @@ impl TemplateAction {
             "Enter any terminal command to open file in editor (example: code, atom, subl, vim, etc...)",);
 
             if let Ok(open_editor_command) = open_editor_command {
-                if open_editor_command.len() > 0 {
+                if !open_editor_command.is_empty() {
                     config_file.open_editor_command = Some(open_editor_command);
                 }
             }
         }
 
-        return config_file;
+        config_file
     }
 }

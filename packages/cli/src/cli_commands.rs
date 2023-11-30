@@ -33,7 +33,7 @@ impl CliCommands {
             }
 
             let result = result.unwrap();
-            if result.len() > 0 {
+            if !result.is_empty() {
                 return Ok(result);
             }
             println!();
@@ -97,7 +97,7 @@ impl CliCommands {
                         return Err("".to_string());
                     }
 
-                    fs::remove_file(&parent).unwrap();
+                    fs::remove_file(parent).unwrap();
                     break;
                 }
 
@@ -126,7 +126,7 @@ impl CliCommands {
     }
 
     pub fn run_terminal_command(command: &str) -> Result<Output, Error> {
-        let args = command.split(" ").collect::<Vec<_>>();
+        let args = command.split(' ').collect::<Vec<_>>();
         let result = std::process::Command::new("sh").args(args).output();
 
         result
@@ -154,7 +154,7 @@ impl CliCommands {
         let result = Select::new(&format!("{}:", text), items)
             .with_starting_cursor(default)
             .prompt();
-        if !result.is_ok() {
+        if result.is_err() {
             return Err("Case type cannot be empty".to_string());
         }
         let result = result.unwrap();
@@ -164,7 +164,7 @@ impl CliCommands {
 
     pub fn select<T: Clone + Display>(text: &str, items: &[T]) -> Result<T, ()> {
         let result = Select::new(&format!("{}:", text), items.to_vec()).prompt();
-        if !result.is_ok() {
+        if result.is_err() {
             return Err(());
         }
         let result = result.unwrap();
@@ -173,10 +173,10 @@ impl CliCommands {
 
     pub fn confirm(text: &str) -> bool {
         let result = Confirm::new(&format!("{} (y/n):", text)).prompt();
-        if !result.is_ok() {
+        if result.is_err() {
             return false;
         }
-        let result = result.unwrap();
-        result
+        
+        result.unwrap()
     }
 }

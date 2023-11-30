@@ -1,9 +1,9 @@
 use crate::{
-    actions::TemplateAction, cli_commands::CliCommands, config::Config,
+    actions::TemplateAction, config::Config,
     constants::TEMPLATE_ROOT_FOLDER,
 };
 
-use std::{collections::HashSet, env, path::Path, process::Command};
+use std::{collections::HashSet, env, path::Path};
 
 /**
  * CLI TOOL - name gen - but gen is name of the tool, so it will be in bash profile.
@@ -42,23 +42,23 @@ impl CliParser {
         let cwd = env::current_dir().unwrap();
 
         let config_dir_path = Path::new(&cwd).join(TEMPLATE_ROOT_FOLDER).to_owned();
-        let global_config_dir_path = Path::new(&env::var("HOME").unwrap())
+        let _global_config_dir_path = Path::new(&env::var("HOME").unwrap())
             .join(TEMPLATE_ROOT_FOLDER)
             .to_owned();
 
-        let mut config = Config::load_template_folders(&config_dir_path);
+        let config = Config::load_template_folders(&config_dir_path);
 
-        let arguments: HashSet<String> = HashSet::from_iter(arguments.into_iter());
+        let arguments: HashSet<String> = HashSet::from_iter(arguments);
 
-        let is_global = arguments.contains("--global") || arguments.contains("-g");
+        let _is_global = arguments.contains("--global") || arguments.contains("-g");
 
-        if arguments.contains("--help") || arguments.contains("-h") || arguments.len() == 0 {
+        if arguments.contains("--help") || arguments.contains("-h") || arguments.is_empty() {
             println!("DICK");
             return;
         }
 
         if arguments.contains("new") {
-            let template = TemplateAction::new(&config);
+            TemplateAction::new(&config);
             // // remove template with same name
             // config.templates = config
             //     .templates

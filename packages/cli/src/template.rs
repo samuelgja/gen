@@ -1,9 +1,9 @@
 use crate::{
-    case_util::CaseType, config::ConfigFile, constants::CONFIG_FILE, search_folder::SearchFolder,
+    case_util::CaseType, constants::CONFIG_FILE,
 };
-use colored::Colorize;
+
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, collections::HashMap, fmt::Display, fs, path::PathBuf};
+use std::{collections::HashMap, fs, path::PathBuf};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TemplateCaseType {

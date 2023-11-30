@@ -29,7 +29,7 @@ impl CaseType {
             return CaseType::PascalCase;
         }
 
-        return CaseType::Unknown;
+        CaseType::Unknown
     }
 }
 

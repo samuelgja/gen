@@ -1,7 +1,5 @@
 use crate::{
     actions::TemplateAction,
-    case_util::CaseType,
-    cli_commands::CliCommands,
     constants::CONFIG_FILE,
     template::{TemplateCaseType, TemplateFolder},
 };
@@ -9,7 +7,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
-    path::{self, Path, PathBuf},
+    path::{PathBuf},
 };
 
 #[derive(Debug)]
@@ -52,8 +50,8 @@ impl ConfigFile {
             config.save_template_config(directory);
             return config;
         }
-        let config = config.unwrap();
-        config
+        
+        config.unwrap()
     }
 
     pub fn save_template_config(&self, directory: &PathBuf) {

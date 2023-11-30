@@ -30,7 +30,7 @@ impl CaseType {
             return CaseType::PascalCase;
         }
 
-        return CaseType::Unknown;
+        CaseType::Unknown
     }
 
     pub fn to_str_name(&self) -> &str {

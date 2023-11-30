@@ -1,8 +1,8 @@
-use std::path::Display;
 
-use lazy_static::lazy_static;
-use regex::Regex;
-use serde_json::map::Iter;
+
+
+
+
 
 use crate::{
     case_util::CaseType,
@@ -133,10 +133,10 @@ impl TemplateVariable {
 
     fn from_str_at_index(value: &str, start_index: usize) -> Option<TemplateVariableParser> {
         let text = &value[start_index..];
-        return TemplateVariable::from_str(&text);
+        TemplateVariable::from_str(text)
     }
 
-    pub fn parse_iter<'a>(str: &'a str) -> TemplateVarIterator {
+    pub fn parse_iter(str: &str) -> TemplateVarIterator {
         TemplateVarIterator {
             content: Some(str),
             last_index: 0,
@@ -152,9 +152,7 @@ impl Iterator for TemplateVarIterator<'_> {
     type Item = TemplateVariableParser;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.content.is_none() {
-            return None;
-        }
+        self.content?;
         let content = self.content.unwrap();
 
         let result = TemplateVariable::from_str_at_index(content, self.last_index);
@@ -173,7 +171,7 @@ impl Iterator for TemplateVarIterator<'_> {
             raw_value: result.raw_value,
         });
         self.last_index += result.end_index;
-        return item_result;
+        item_result
     }
 }
 
@@ -263,7 +261,7 @@ mod tests {
         assert_eq!(result.index, 1);
 
         let result = TemplateVariable::from_str("$te");
-        assert_eq!(result.is_none(), true);
+        assert!(result.is_none());
 
         let result = TemplateVariable::from_str("#var_pascal");
         assert_eq!(

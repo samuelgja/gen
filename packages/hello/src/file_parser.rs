@@ -47,7 +47,7 @@ impl FileParser {
             if items_length == &1 {
                 return None;
             }
-            if new_name.len() == 0 {
+            if new_name.is_empty() {
                 return None;
             }
             return Some(ParsedName {
@@ -71,7 +71,7 @@ impl FileParser {
             if items_length == &1 {
                 return None;
             }
-            if new_name.len() == 0 {
+            if new_name.is_empty() {
                 return None;
             }
 
@@ -82,11 +82,11 @@ impl FileParser {
             });
         }
 
-        return Some(ParsedName {
+        Some(ParsedName {
             name: value.to_string(),
             last_part: None,
             first_part: None,
-        });
+        })
     }
     pub fn get_files_in_root_folder(root_path: &str) -> Vec<FileParser> {
         let ignore_list = vec![
@@ -196,7 +196,7 @@ impl FileParser {
                 if parent_name.is_none() {
                     return false;
                 }
-                return search.len() > 0;
+                !search.is_empty()
             })
             .map(|full_path| {
                 // replace root_path path with empty string
@@ -242,7 +242,7 @@ impl FileParser {
                 } else {
                     not_same_name_folder = folder.clone();
                 }
-                return FileParser {
+                FileParser {
                     folder,
                     not_same_name_folder,
                     name: base_name.to_string(),
@@ -251,13 +251,13 @@ impl FileParser {
                     parsed_name,
                     case,
                     path: full_path,
-                };
+                }
             })
             .collect();
 
         search.sort();
 
-        return search;
+        search
     }
 
     pub fn get_same_files(root_path: &str) {
@@ -287,11 +287,11 @@ impl FileParser {
                         return false;
                     }
 
-                    return true;
+                    true
                 })
                 .collect::<Vec<_>>();
 
-            if same_files.len() == 0 {
+            if same_files.is_empty() {
                 continue;
             }
 
@@ -304,13 +304,13 @@ impl FileParser {
             hash_result.insert(generated_key, same_files);
         }
 
-        for (key, same_files) in hash_result.iter() {
+        for (_key, same_files) in hash_result.iter() {
             if same_files.len() > 2 {
                 for same_file in same_files.iter() {
                     println!("{}", same_file.path);
                     println!("{:?}", same_file.not_same_name_folder);
                 }
-                println!("");
+                println!();
             }
         }
     }
@@ -325,7 +325,7 @@ mod tests {
         let root_path = "/Users/samuelgjabel/Documents/ROBOTA/jigx";
         // let root_path = "/Users/samuelgjabel/Documents/SUKROMNE/storage-engine-rust";
 
-        let result = FileParser::get_same_files(root_path);
+        FileParser::get_same_files(root_path);
         // println!("{:?}", result);
     }
 }
