@@ -20,37 +20,38 @@ impl TemplateAction {
         println!();
         println!("{}", "📂 Creating of a new template -> ".green());
         println!();
-        let name =
-            CliCommands::input_not_empty("Enter template name", "Template name cannot be empty");
+        let name = CliCommands::input_not_empty(
+            "Enter template name",
+            "Template name cannot be empty",
+            None,
+        );
         if name.is_err() {
             return;
         }
         let name = name.unwrap();
         println!();
 
-        let description = CliCommands::input("Enter template description");
+        let description = CliCommands::input("Enter template description", None);
         if description.is_err() {
             return;
         }
         let description = description.unwrap();
 
-        TemplateAction::print_content_file_info();
-
-        let template_path = &config.path.join(&name);
-        let is_exist = template_path.exists();
-        if !is_exist {
-            fs::create_dir_all(template_path).unwrap();
-        }
-
-        let template_folder = TemplateFolder {
-            name: name.clone(),
-            path: template_path.to_path_buf(),
-        };
+        let template_folder = TemplateFolder::new(config, &name);
         let mut template_config = TemplateConfig::load_template_config(&template_folder);
         template_config.name = name;
         template_config.description = description;
         template_config.save_template_config(&template_folder);
 
+        TemplateAction::template_edit(config, &template_folder, &mut template_config);
+    }
+
+    pub fn template_edit(
+        config: &Config,
+        template_folder: &TemplateFolder,
+        template_config: &mut TemplateConfig,
+    ) {
+        TemplateAction::print_content_file_info();
         TemplateAction::template_file_info();
         TemplateAction::new_template_files(config, &template_folder);
 
@@ -66,7 +67,7 @@ impl TemplateAction {
             println!();
             println!(
                 "{}",
-                "📝 Now let's add some values (options) for #select variables".yellow(),
+                "📝 Add some values (options) for #select variables".yellow(),
             );
             println!();
             println!(
@@ -113,6 +114,7 @@ impl TemplateAction {
                         &variable.raw_value.cyan().bold().italic()
                     ),
                     "Select values cannot be empty",
+                    None,
                 );
 
                 if result.is_err() {
@@ -135,7 +137,7 @@ impl TemplateAction {
         println!(
             "{} {}",
             "Done. Template created at:".green(),
-            template_path.to_str().unwrap().bold().green()
+            template_folder.path.to_str().unwrap().bold().green()
         );
         println!();
     }
@@ -188,7 +190,7 @@ impl TemplateAction {
     }
     pub fn template_file_info() {
         println!();
-        println!("{}", "📄 Creating of a new template file -> ".green());
+        println!("{}", "📄 Add template file -> ".green());
         println!();
         println!(
             "{} {}",
@@ -212,7 +214,7 @@ impl TemplateAction {
         }
     }
     pub fn new_template_file(config: &Config, template_folder: &TemplateFolder) {
-        let path = CliCommands::input_path(&template_folder.path, "Enter template file path");
+        let path = CliCommands::input_path(&template_folder.path, "Enter template file path", None);
 
         if path.is_err() {
             return;
@@ -250,8 +252,8 @@ impl TemplateAction {
         if let Some(command) = &config.config.open_editor_command {
             // run command
             let full_command = format!("{} {}", command, path.to_str().unwrap());
-            let result = CliCommands::run_terminal_command(&full_command);
-            if result.is_err() {
+            let is_ok = CliCommands::run_terminal_command(&full_command);
+            if !is_ok {
                 println!();
                 println!(
                     "{} {}",
@@ -306,6 +308,11 @@ impl TemplateAction {
         if content_case_type.is_ok() {
             config_file.case_type.content = content_case_type.unwrap();
         }
+
+        config_file
+    }
+
+    pub fn get_template_command_args() -> Option<String> {
         println!();
         let is_adding_terminal_command = CliCommands::confirm(
             "Do you want to add terminal command to open template file in editor?",
@@ -313,15 +320,14 @@ impl TemplateAction {
         if is_adding_terminal_command {
             println!();
             let open_editor_command = CliCommands::input(
-            "Enter any terminal command to open file in editor (example: code, atom, subl, vim, etc...)",);
+            "Enter any terminal command to open file in editor (example: code, atom, subl, vim, etc...)",None);
 
             if let Ok(open_editor_command) = open_editor_command {
                 if !open_editor_command.is_empty() {
-                    config_file.open_editor_command = Some(open_editor_command);
+                    return Some(open_editor_command);
                 }
             }
         }
-
-        config_file
+        None
     }
 }

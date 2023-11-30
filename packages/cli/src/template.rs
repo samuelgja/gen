@@ -1,4 +1,4 @@
-use crate::{case_util::CaseType, constants::CONFIG_FILE};
+use crate::{case_util::CaseType, config::Config, constants::CONFIG_FILE};
 
 use serde::{Deserialize, Serialize};
 use std::{
@@ -26,6 +26,20 @@ impl TemplateCaseType {
 pub struct TemplateFolder {
     pub name: String,
     pub path: PathBuf,
+}
+impl TemplateFolder {
+    pub fn new(config: &Config, name: &str) -> TemplateFolder {
+        let template_path = config.path.join(name);
+        let is_exist = template_path.exists();
+        if !is_exist {
+            fs::create_dir_all(&template_path).unwrap();
+        }
+
+        TemplateFolder {
+            name: name.to_string(),
+            path: template_path.clone(),
+        }
+    }
 }
 
 impl Display for TemplateFolder {

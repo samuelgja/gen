@@ -1,6 +1,8 @@
 pub struct CliCommands;
+use crate::case_util::CaseType;
 use colored::Colorize;
 use inquire::{Confirm, Select, Text};
+use loading::Loading;
 use std::{
     fmt::Display,
     fs,
@@ -9,10 +11,8 @@ use std::{
     process::Output,
 };
 
-use crate::case_util::CaseType;
-
 impl CliCommands {
-    pub fn input(text: &str) -> Result<String, String> {
+    pub fn input(text: &str, default: Option<&str>) -> Result<String, String> {
         // initial text will be green
         let result = Text::new(&format!("{}:", text)).prompt();
 
@@ -23,7 +23,11 @@ impl CliCommands {
         Ok(result.unwrap())
     }
 
-    pub fn input_not_empty(text: &str, error_msg: &str) -> Result<String, String> {
+    pub fn input_not_empty(
+        text: &str,
+        error_msg: &str,
+        default: Option<&str>,
+    ) -> Result<String, String> {
         loop {
             let result = Text::new(&format!("{}:", text)).prompt();
 
@@ -42,7 +46,11 @@ impl CliCommands {
         }
     }
 
-    pub fn input_path(template_path: &PathBuf, text: &str) -> Result<PathBuf, String> {
+    pub fn input_path(
+        template_path: &PathBuf,
+        text: &str,
+        default: Option<&str>,
+    ) -> Result<PathBuf, String> {
         let mut loops_count = 0;
         loop {
             loops_count += 1;
@@ -59,7 +67,7 @@ impl CliCommands {
                     return Err("".to_string());
                 }
             }
-            let result = CliCommands::input_not_empty(text, "Path cannot be empty");
+            let result = CliCommands::input_not_empty(text, "Path cannot be empty", default);
             if result.is_err() {
                 println!();
                 println!("{}", "🚨 Invalid path".red());
@@ -125,11 +133,19 @@ impl CliCommands {
         }
     }
 
-    pub fn run_terminal_command(command: &str) -> Result<Output, Error> {
+    pub fn run_terminal_command(command: &str) -> bool {
         let args = command.split(' ').collect::<Vec<_>>();
-        let result = std::process::Command::new("sh").args(args).output();
 
-        result
+        let loading = Loading::default();
+        loading.text("Opening file".blue());
+        let result = std::process::Command::new("sh").args(args).output();
+        if result.is_err() {
+            loading.warn("Error");
+            return false;
+        }
+        loading.success("OK");
+        loading.end();
+        true
     }
 
     pub fn case_type(case_type: Option<CaseType>, text: &str) -> Result<CaseType, String> {
@@ -176,7 +192,7 @@ impl CliCommands {
         if result.is_err() {
             return false;
         }
-        
+
         result.unwrap()
     }
 }

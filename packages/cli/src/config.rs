@@ -32,13 +32,16 @@ impl ConfigFile {
         }
     }
 
-    pub fn load_template_config(directory: &Path) -> ConfigFile {
+    pub fn load_config(directory: &Path, is_template_enabled: bool) -> ConfigFile {
         let config_path = directory.join(CONFIG_FILE);
         let config_content = fs::read_to_string(&config_path);
 
         if config_content.is_err() {
+            if !is_template_enabled {
+                return ConfigFile::new();
+            }
             let config = TemplateAction::get_template_config();
-            config.save_template_config(directory);
+            config.save_config(directory);
             return config;
         }
         let config_content = config_content.unwrap();
@@ -47,17 +50,23 @@ impl ConfigFile {
         if config.is_err() {
             let config = TemplateAction::get_template_config();
             fs::remove_file(&config_path).unwrap();
-            config.save_template_config(directory);
+            config.save_config(directory);
             return config;
         }
 
         config.unwrap()
     }
 
-    pub fn save_template_config(&self, directory: &Path) {
+    pub fn save_config(&self, directory: &Path) {
         let config_path = directory.join(CONFIG_FILE);
         let config_content = serde_json::to_string_pretty(&self).unwrap();
         fs::write(config_path, config_content).unwrap();
+    }
+
+    pub fn merge(&mut self, config: &ConfigFile) {
+        if self.open_editor_command.is_none() {
+            self.open_editor_command = config.open_editor_command.clone();
+        }
     }
 }
 
@@ -82,11 +91,9 @@ impl Config {
             })
             .collect::<Vec<_>>();
 
-        let config_file = ConfigFile::load_template_config(directory);
-
         Config {
             templates: folders,
-            config: config_file,
+            config: ConfigFile::new(),
             path: directory.to_path_buf(),
         }
     }
