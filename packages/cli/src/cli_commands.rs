@@ -2,13 +2,10 @@ pub struct CliCommands;
 use crate::case_util::CaseType;
 use colored::Colorize;
 use inquire::{Confirm, MultiSelect, Select, Text};
-use loading::Loading;
 use std::{
     fmt::Display,
     fs,
-    io::Error,
     path::{Path, PathBuf},
-    process::Output,
 };
 
 impl CliCommands {

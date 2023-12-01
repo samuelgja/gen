@@ -1,9 +1,3 @@
-
-
-
-
-
-
 use crate::{
     case_util::CaseType,
     constants::{TEMPLATE_SELECT_REGEX, TEMPLATE_VARIABLE_REGEX},
@@ -35,7 +29,7 @@ impl TemplateVariable {
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub struct TemplateVariableParser {
+pub struct TemplateVariableInfo {
     pub template_variable: TemplateVariable,
     pub index: usize,
     pub case_type: CaseType,
@@ -44,8 +38,8 @@ pub struct TemplateVariableParser {
     pub raw_value: String,
 }
 
-impl TemplateVariable {
-    pub fn from_str(value: &str) -> Option<TemplateVariableParser> {
+impl TemplateVariableInfo {
+    pub fn from_str(value: &str) -> Option<TemplateVariableInfo> {
         let is_var_match = TEMPLATE_VARIABLE_REGEX.is_match(value);
         let is_select_match = TEMPLATE_SELECT_REGEX.is_match(value);
 
@@ -121,7 +115,7 @@ impl TemplateVariable {
             CaseType::Unknown
         };
 
-        Some(TemplateVariableParser {
+        Some(TemplateVariableInfo {
             template_variable,
             index,
             case_type,
@@ -131,38 +125,38 @@ impl TemplateVariable {
         })
     }
 
-    fn from_str_at_index(value: &str, start_index: usize) -> Option<TemplateVariableParser> {
+    fn from_str_at_index(value: &str, start_index: usize) -> Option<TemplateVariableInfo> {
         let text = &value[start_index..];
-        TemplateVariable::from_str(text)
+        TemplateVariableInfo::from_str(text)
     }
 
-    pub fn parse_iter(str: &str) -> TemplateVarIterator {
-        TemplateVarIterator {
+    pub fn parse_iter(str: &str) -> TemplateVariableInfoIterator {
+        TemplateVariableInfoIterator {
             content: Some(str),
             last_index: 0,
         }
     }
 }
 
-pub struct TemplateVarIterator<'a> {
+pub struct TemplateVariableInfoIterator<'a> {
     content: Option<&'a str>,
     last_index: usize,
 }
-impl Iterator for TemplateVarIterator<'_> {
-    type Item = TemplateVariableParser;
+impl Iterator for TemplateVariableInfoIterator<'_> {
+    type Item = TemplateVariableInfo;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.content?;
         let content = self.content.unwrap();
 
-        let result = TemplateVariable::from_str_at_index(content, self.last_index);
+        let result = TemplateVariableInfo::from_str_at_index(content, self.last_index);
         if result.is_none() {
             self.content = None;
             return None;
         }
         let result = result.unwrap();
 
-        let item_result = Some(TemplateVariableParser {
+        let item_result = Some(TemplateVariableInfo {
             start_index: result.start_index + self.last_index,
             end_index: result.end_index + self.last_index,
             case_type: result.case_type,
@@ -177,12 +171,14 @@ impl Iterator for TemplateVarIterator<'_> {
 
 #[cfg(test)]
 mod tests {
+    use crate::template_variable::TemplateVariableInfo;
+
     use super::TemplateVariable;
 
     #[test]
     fn should_parse_with_iterator() {
         let search = "abc #var #select #var1 #select1 #var2 #select_kebab";
-        let mut iterator = TemplateVariable::parse_iter(search);
+        let mut iterator = TemplateVariableInfo::parse_iter(search);
 
         let result = iterator.next().unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Var);
@@ -225,7 +221,7 @@ mod tests {
     #[test]
     fn should_parse_with_iterator_real_example() {
         let search = "#var.tsx";
-        let mut iterator = TemplateVariable::parse_iter(search);
+        let mut iterator = TemplateVariableInfo::parse_iter(search);
 
         let result = iterator.next().unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Var);
@@ -236,58 +232,58 @@ mod tests {
 
     #[test]
     fn should_test_template_variable() {
-        let result = TemplateVariable::from_str("abc #var #select").unwrap();
+        let result = TemplateVariableInfo::from_str("abc #var #select").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Var);
         assert_eq!(result.index, 0);
 
-        let result = TemplateVariable::from_str("##var.tsx").unwrap();
+        let result = TemplateVariableInfo::from_str("##var.tsx").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Var);
         assert_eq!(result.index, 0);
 
-        let result = TemplateVariable::from_str("#var2").unwrap();
+        let result = TemplateVariableInfo::from_str("#var2").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Var);
         assert_eq!(result.index, 2);
 
-        let result = TemplateVariable::from_str("#select").unwrap();
+        let result = TemplateVariableInfo::from_str("#select").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Select);
         assert_eq!(result.index, 0);
 
-        let result = TemplateVariable::from_str("#select=").unwrap();
+        let result = TemplateVariableInfo::from_str("#select=").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Select);
         assert_eq!(result.index, 0);
 
-        let result = TemplateVariable::from_str("#select1$asd").unwrap();
+        let result = TemplateVariableInfo::from_str("#select1$asd").unwrap();
         assert_eq!(result.template_variable, TemplateVariable::Select);
         assert_eq!(result.index, 1);
 
-        let result = TemplateVariable::from_str("$te");
+        let result = TemplateVariableInfo::from_str("$te");
         assert!(result.is_none());
 
-        let result = TemplateVariable::from_str("#var_pascal");
+        let result = TemplateVariableInfo::from_str("#var_pascal");
         assert_eq!(
             result.unwrap().case_type,
             crate::case_util::CaseType::PascalCase
         );
 
-        let result = TemplateVariable::from_str("#var_camel");
+        let result = TemplateVariableInfo::from_str("#var_camel");
         assert_eq!(
             result.unwrap().case_type,
             crate::case_util::CaseType::CamelCase
         );
 
-        let result = TemplateVariable::from_str("#var_kebab");
+        let result = TemplateVariableInfo::from_str("#var_kebab");
         assert_eq!(
             result.unwrap().case_type,
             crate::case_util::CaseType::KebabCase
         );
 
-        let result = TemplateVariable::from_str("#var_snake");
+        let result = TemplateVariableInfo::from_str("#var_snake");
         assert_eq!(
             result.unwrap().case_type,
             crate::case_util::CaseType::SnakeCase
         );
 
-        let result = TemplateVariable::from_str("#var1_snake");
+        let result = TemplateVariableInfo::from_str("#var1_snake");
         assert_eq!(
             result.unwrap().case_type,
             crate::case_util::CaseType::SnakeCase

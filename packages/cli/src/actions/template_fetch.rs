@@ -41,8 +41,9 @@ impl TemplateFetch {
 
         let git_config = Config::load_template_folders(&template_folder_path);
 
+        println!();
         let git_template_folders = CliCommands::multi_select(
-            "Select templates to be copied:",
+            "Select templates to be copied",
             &git_config.template_folders,
         );
 
@@ -81,17 +82,14 @@ impl TemplateFetch {
                 }
             }
 
-            let destination = config.path.join(&git_template_folder.name);
+            let destination = &config.path;
 
             if !destination.exists() {
                 fs::create_dir_all(&destination).unwrap();
             }
 
-            let move_result = move_dir(
-                &git_template_folder.path,
-                &config.path.join(&git_template_folder.name),
-                &CopyOptions::new(),
-            );
+            let move_result =
+                move_dir(&git_template_folder.path, &config.path, &CopyOptions::new());
             if move_result.is_err() {
                 println!("{}", "🚨 Error while moving template folder".red());
                 return;

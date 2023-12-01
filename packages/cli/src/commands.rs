@@ -5,7 +5,7 @@ use colored::Colorize;
 use crate::{actions::TemplateAction, constants::TEMPLATE_DOCS_URL};
 pub enum Commands {
     New,
-    Select,
+    Use,
     Edit,
     Delete,
     Publish,
@@ -29,7 +29,7 @@ impl Commands {
             Commands::Version => "version".to_owned(),
             Commands::Global => "--global".to_owned(),
             Commands::Refresh => "refresh".to_owned(),
-            Commands::Select => "select".to_owned(),
+            Commands::Use => "use".to_owned(),
             Commands::Fetch => "fetch".to_owned(),
             Commands::VariablesList => "variables".to_owned(),
         }
@@ -46,7 +46,7 @@ impl Commands {
             Commands::Version => "v".to_owned(),
             Commands::Global => "-g".to_owned(),
             Commands::Refresh => "r".to_owned(),
-            Commands::Select => "s".to_owned(),
+            Commands::Use => "u".to_owned(),
             Commands::Fetch => "f".to_owned(),
             Commands::VariablesList => "vv".to_owned(),
         }
@@ -64,11 +64,11 @@ impl Commands {
             Commands::Version => "Show version".to_owned(),
             Commands::Global => "Global scope".to_owned(),
             Commands::Refresh => format!(
-                "Refresh templates. But this is also triggered when selecting template.{}",
+                "Refresh templates all templates.{}",
                 support_global
             )
             .to_owned(),
-            Commands::Select => format!("Select template. {}", support_global).to_owned(),
+            Commands::Use => format!("Use / template. {}", support_global).to_owned(),
             Commands::Fetch => format!(
                 "Fetch templates from github url (todo any url). {}",
                 support_global
@@ -141,7 +141,7 @@ impl Commands {
         Commands::print_usage_item(Commands::Help);
         Commands::print_usage_item(Commands::Version);
         Commands::print_usage_item(Commands::Refresh);
-        Commands::print_usage_item(Commands::Select);
+        Commands::print_usage_item(Commands::Use);
         Commands::print_usage_item(Commands::VariablesList);
         Commands::print_usage_item(Commands::Global);
 
@@ -169,7 +169,7 @@ impl Commands {
             Commands::Version,
             Commands::Global,
             Commands::Refresh,
-            Commands::Select,
+            Commands::Use,
             Commands::Fetch,
             Commands::VariablesList,
         ];

@@ -6,7 +6,7 @@ use crate::{
         CONFIG_FILE, TEMPLATE_DOCS_URL, TEMPLATE_ROOT_FOLDER, TEMPLATE_SELECT, TEMPLATE_VARIABLE,
     },
     search_folder::SearchFolder,
-    template::{self, TemplateConfig, TemplateFolder},
+    template::{TemplateConfig, TemplateFolder},
     template_file_content::TEMPLATE_FILE_CONTENT,
     template_variable::TemplateVariable,
 };
@@ -198,7 +198,7 @@ impl TemplateAction {
         println!("{:width$} can be in any format", second_step);
 
         println!(
-            "{:width$} available variables for both template file & content are ->",
+            "{:width$} available variables for both.. template paths & template content are ->",
             third_step,
         );
         println!();

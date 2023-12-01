@@ -1,6 +1,6 @@
 [workspace]
 
-members = ['./packages/hello', "packages/cli"]
+members = ["packages/cli"]
 
 [profile.release]
 lto = "fat"

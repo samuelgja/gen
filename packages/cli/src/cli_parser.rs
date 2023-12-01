@@ -60,7 +60,6 @@ impl CliParser {
         local_config.config = ConfigFile::load_config(&local_config_dir_path, !is_global);
         global_config.config = ConfigFile::load_config(&global_config_dir_path, is_global);
 
-        println!("second_argument: {:?}", second_argument);
         let config = if is_global {
             &global_config
         } else {
@@ -164,7 +163,7 @@ impl CliParser {
             return;
         }
 
-        if Commands::Select.is_command_from_set(&arguments) {
+        if Commands::Use.is_command_from_set(&arguments) {
             let template_folder = if let Some(template_name) = second_argument {
                 Ok(TemplateFolder::new(config, template_name))
             } else {
