@@ -1,7 +1,7 @@
 pub struct CliCommands;
 use crate::case_util::CaseType;
 use colored::Colorize;
-use inquire::{Confirm, Select, Text};
+use inquire::{Confirm, MultiSelect, Select, Text};
 use loading::Loading;
 use std::{
     fmt::Display,
@@ -17,8 +17,7 @@ impl CliCommands {
         let result = Text::new(&format!("{}:", text)).prompt();
 
         if result.is_err() {
-            let text_formatted = format!("{} cannot be empty", text);
-            return Err(text_formatted);
+            std::process::exit(1);
         }
         Ok(result.unwrap())
     }
@@ -32,8 +31,7 @@ impl CliCommands {
             let result = Text::new(&format!("{}:", text)).prompt();
 
             if result.is_err() {
-                let text_formatted = format!("{} cannot be empty", text);
-                return Err(text_formatted);
+                std::process::exit(1);
             }
 
             let result = result.unwrap();
@@ -60,7 +58,7 @@ impl CliCommands {
                 let is_exit =
                     Confirm::new(&format!("Do you wish to exit?{} (y/n):", text)).prompt();
                 if is_exit.is_err() {
-                    return Err("".to_string());
+                    std::process::exit(1);
                 }
                 let is_exit = is_exit.unwrap();
                 if is_exit {
@@ -136,15 +134,29 @@ impl CliCommands {
     pub fn run_terminal_command(command: &str) -> bool {
         let args = command.split(' ').collect::<Vec<_>>();
 
-        let loading = Loading::default();
-        loading.text("Opening file".blue());
-        let result = std::process::Command::new("sh").args(args).output();
+        let first_take = args[0].to_owned();
+        let args = args[1..].to_owned();
+        // let loading = Loading::default();
+        // loading.text("Opening file".blue());
+        let result = std::process::Command::new(first_take).args(args).output();
+
         if result.is_err() {
-            loading.warn("Error");
+            println!("result: {:?}", result.err().unwrap());
+            // loading.end();
             return false;
         }
-        loading.success("OK");
-        loading.end();
+
+        let result = result.unwrap();
+
+        if !result.status.success() {
+            println!("status: {:?}", result.status);
+            println!("stdout: {:?}", String::from_utf8(result.stdout));
+            println!("stderr: {:?}", String::from_utf8(result.stderr));
+
+            return false;
+        }
+        // loading.success("OK");
+        // loading.end();
         true
     }
 
@@ -180,6 +192,15 @@ impl CliCommands {
 
     pub fn select<T: Clone + Display>(text: &str, items: &[T]) -> Result<T, ()> {
         let result = Select::new(&format!("{}:", text), items.to_vec()).prompt();
+        if result.is_err() {
+            return Err(());
+        }
+        let result = result.unwrap();
+        Ok(result)
+    }
+
+    pub fn multi_select<T: Clone + Display>(text: &str, items: &[T]) -> Result<Vec<T>, ()> {
+        let result = MultiSelect::new(&format!("{}:", text), items.to_vec()).prompt();
         if result.is_err() {
             return Err(());
         }

@@ -70,7 +70,7 @@ impl Commands {
             .to_owned(),
             Commands::Select => format!("Select template. {}", support_global).to_owned(),
             Commands::Fetch => format!(
-                "Fetch templates from github, url or local path. {}",
+                "Fetch templates from github url (todo any url). {}",
                 support_global
             )
             .to_owned(),

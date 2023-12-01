@@ -10,13 +10,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-#[derive(Debug)]
-pub struct Config {
-    pub template_folders: Vec<TemplateFolder>,
-    pub config: ConfigFile,
-    pub path: PathBuf,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 
 pub struct ConfigFile {
@@ -68,6 +61,13 @@ impl ConfigFile {
             self.open_editor_command = config.open_editor_command.clone();
         }
     }
+}
+
+#[derive(Debug)]
+pub struct Config {
+    pub template_folders: Vec<TemplateFolder>,
+    pub config: ConfigFile,
+    pub path: PathBuf,
 }
 
 impl Config {

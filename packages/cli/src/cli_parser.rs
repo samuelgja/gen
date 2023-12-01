@@ -1,5 +1,5 @@
 use crate::{
-    actions::TemplateAction,
+    actions::{TemplateAction, TemplateFetch},
     cli_commands::CliCommands,
     commands::Commands,
     config::{Config, ConfigFile},
@@ -103,12 +103,43 @@ impl CliParser {
         }
 
         if Commands::Edit.is_command_from_set(&arguments) {
-            let template_folder = CliParser::get_list(config);
+            let template_folder = if let Some(template_name) = second_argument {
+                Ok(TemplateFolder::new_empty(config, template_name))
+            } else {
+                CliParser::get_list(config)
+            };
             if template_folder.is_err() {
                 return;
             }
+            let template_folder = template_folder.unwrap();
 
-            CliParser::edit_create_selected_template(config, &template_folder.unwrap());
+            let is_template_folder_exist = config
+                .template_folders
+                .iter()
+                .any(|item| item.name == template_folder.name);
+            if !is_template_folder_exist {
+                println!();
+                println!(
+                    "{} {}",
+                    "🚨 Template does not exist:".red(),
+                    template_folder.name
+                );
+                println!();
+                let similar_word_match =
+                    CliParser::get_similar_word_match(config, &template_folder.name);
+                if similar_word_match.is_some() {
+                    println!(
+                        "{}",
+                        format!(
+                            "🤔 Did you mean {}?",
+                            similar_word_match.unwrap().name.bold().green()
+                        )
+                        .yellow()
+                    );
+                }
+                return;
+            }
+            CliParser::edit_create_selected_template(config, &template_folder);
             return;
         }
 
@@ -118,6 +149,18 @@ impl CliParser {
         }
         if Commands::VariablesList.is_command_from_set(&arguments) {
             TemplateAction::list_of_all_variables(config);
+            return;
+        }
+
+        if Commands::Fetch.is_command_from_set(&arguments) {
+            println!("FUCK___");
+            if let Some(url) = second_argument {
+                TemplateFetch::fetch_github(config, url);
+                return;
+            } else {
+                println!("{}", "🚨 Missing url, github url or path argument.".red());
+            }
+
             return;
         }
 
@@ -218,9 +261,53 @@ impl CliParser {
                 "{}",
                 format!("🚨 Template {} does not exist", template_name).red()
             );
+
+            let similar_word_match = CliParser::get_similar_word_match(config, template_name);
+            if similar_word_match.is_some() {
+                println!(
+                    "{}",
+                    format!(
+                        "🤔 Did you mean {}?",
+                        similar_word_match.unwrap().name.bold().green()
+                    )
+                    .yellow()
+                );
+            }
             return None;
         }
         let template_folder = template_folder.unwrap();
         Some(template_folder.to_owned())
+    }
+
+    fn get_fuzzy_score(template_name: &str, template_name_to_match: &str) -> i64 {
+        let mut score = 0;
+        let mut template_name_chars = template_name.chars();
+        let mut template_name_to_match_chars = template_name_to_match.chars();
+        let mut template_name_char = template_name_chars.next();
+        let mut template_name_to_match_char = template_name_to_match_chars.next();
+        while template_name_char.is_some() && template_name_to_match_char.is_some() {
+            if template_name_char.unwrap() == template_name_to_match_char.unwrap() {
+                score += 1;
+            }
+            template_name_char = template_name_chars.next();
+            template_name_to_match_char = template_name_to_match_chars.next();
+        }
+        score
+    }
+
+    fn get_similar_word_match(config: &Config, template_name: &str) -> Option<TemplateFolder> {
+        // fuzzy score (sort) template folders by closest match to template_name
+        let mut sorted_template_folders = config
+            .template_folders
+            .iter()
+            .map(|item| (item, CliParser::get_fuzzy_score(&item.name, template_name)))
+            .collect::<Vec<_>>();
+        sorted_template_folders.sort_by(|a, b| b.1.cmp(&a.1));
+        let template_folder = sorted_template_folders.first();
+        if template_folder.is_none() {
+            return None;
+        }
+        let template_folder = template_folder.unwrap();
+        Some(template_folder.0.to_owned())
     }
 }

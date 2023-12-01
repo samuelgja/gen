@@ -22,7 +22,7 @@ impl TemplateCaseType {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TemplateFolder {
     pub name: String,
     pub path: PathBuf,
@@ -34,6 +34,15 @@ impl TemplateFolder {
         if !is_exist {
             fs::create_dir_all(&template_path).unwrap();
         }
+
+        TemplateFolder {
+            name: name.to_string(),
+            path: template_path.clone(),
+        }
+    }
+
+    pub fn new_empty(config: &Config, name: &str) -> TemplateFolder {
+        let template_path = config.path.join(name);
 
         TemplateFolder {
             name: name.to_string(),
