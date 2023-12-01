@@ -12,7 +12,7 @@ use std::{
 
 #[derive(Debug)]
 pub struct Config {
-    pub templates: Vec<TemplateFolder>,
+    pub template_folders: Vec<TemplateFolder>,
     pub config: ConfigFile,
     pub path: PathBuf,
 }
@@ -92,7 +92,7 @@ impl Config {
             .collect::<Vec<_>>();
 
         Config {
-            templates: folders,
+            template_folders: folders,
             config: ConfigFile::new(),
             path: directory.to_path_buf(),
         }

@@ -43,10 +43,10 @@ pub struct CliParser {}
 impl CliParser {
     pub fn parse() {
         let vec_arguments: Vec<String> = env::args().skip(1).collect();
-        let vec_arguments_cloned = vec_arguments.clone();
-        let second_argument = &vec_arguments_cloned.get(1);
+        let vec_arguments_cloned = Commands::return_unknown_arguments(&vec_arguments);
+        let second_argument = &vec_arguments_cloned.get(0);
         let arguments: HashSet<String> = HashSet::from_iter(vec_arguments);
-        let is_global = Commands::Global.is_command(&arguments);
+        let is_global = Commands::Global.is_command_from_set(&arguments);
         let cwd = env::current_dir().unwrap();
 
         let local_config_dir_path = Path::new(&cwd).join(TEMPLATE_ROOT_FOLDER).to_owned();
@@ -60,6 +60,7 @@ impl CliParser {
         local_config.config = ConfigFile::load_config(&local_config_dir_path, !is_global);
         global_config.config = ConfigFile::load_config(&global_config_dir_path, is_global);
 
+        println!("second_argument: {:?}", second_argument);
         let config = if is_global {
             &global_config
         } else {
@@ -81,17 +82,17 @@ impl CliParser {
             &local_config
         };
 
-        if Commands::Help.is_command(&arguments) || arguments.is_empty() {
+        if Commands::Help.is_command_from_set(&arguments) || arguments.is_empty() {
             Commands::print_help();
             return;
         }
 
-        if Commands::Version.is_command(&arguments) {
+        if Commands::Version.is_command_from_set(&arguments) {
             println!("{} {}", "Version:", CLI_VERSION.bold());
             return;
         }
 
-        if Commands::New.is_command(&arguments) {
+        if Commands::New.is_command_from_set(&arguments) {
             if let Some(template_name) = second_argument {
                 let template_folder = TemplateFolder::new(config, template_name);
                 CliParser::edit_create_selected_template(config, &template_folder);
@@ -101,7 +102,7 @@ impl CliParser {
             return;
         }
 
-        if Commands::Edit.is_command(&arguments) {
+        if Commands::Edit.is_command_from_set(&arguments) {
             let template_folder = CliParser::get_list(config);
             if template_folder.is_err() {
                 return;
@@ -111,7 +112,16 @@ impl CliParser {
             return;
         }
 
-        if Commands::Select.is_command(&arguments) {
+        if Commands::Refresh.is_command_from_set(&arguments) {
+            TemplateAction::refresh_templates(config);
+            return;
+        }
+        if Commands::VariablesList.is_command_from_set(&arguments) {
+            TemplateAction::list_of_all_variables(config);
+            return;
+        }
+
+        if Commands::Select.is_command_from_set(&arguments) {
             let template_folder = if let Some(template_name) = second_argument {
                 Ok(TemplateFolder::new(config, template_name))
             } else {
@@ -124,7 +134,7 @@ impl CliParser {
             return;
         }
 
-        if Commands::Delete.is_command(&arguments) {
+        if Commands::Delete.is_command_from_set(&arguments) {
             let template_folder = if let Some(template_name) = second_argument {
                 Ok(TemplateFolder::new(config, template_name))
             } else {
@@ -167,7 +177,7 @@ impl CliParser {
 
     fn get_list(config: &Config) -> Result<TemplateFolder, ()> {
         let template_folders = config
-            .templates
+            .template_folders
             .iter()
             .map(|item| item.name.to_owned())
             .collect::<Vec<_>>();
@@ -178,7 +188,7 @@ impl CliParser {
             return Err(());
         }
         println!();
-        let selected = CliCommands::select("📝 Select template to use", &config.templates);
+        let selected = CliCommands::select("📝 Select template to use", &config.template_folders);
         selected
     }
 
@@ -199,7 +209,7 @@ impl CliParser {
 
     fn get_template(config: &Config, template_name: &str) -> Option<TemplateFolder> {
         let template_folder = config
-            .templates
+            .template_folders
             .iter()
             .find(|item| item.name == template_name);
         if template_folder.is_none() {

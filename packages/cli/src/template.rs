@@ -93,4 +93,15 @@ impl TemplateConfig {
         let config_content = serde_json::to_string_pretty(&self).unwrap();
         fs::write(config_path, config_content).unwrap();
     }
+
+    pub fn merge_select_options(&mut self, select_options: &HashMap<String, Vec<String>>) {
+        if self.select_options.is_none() {
+            self.select_options = Some(HashMap::new());
+        }
+
+        let current_select_options = self.select_options.as_mut().unwrap();
+        for (key, value) in select_options.iter() {
+            current_select_options.insert(key.to_string(), value.to_vec());
+        }
+    }
 }

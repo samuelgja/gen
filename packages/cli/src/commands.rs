@@ -15,6 +15,7 @@ pub enum Commands {
     Help,
     Version,
     Fetch,
+    VariablesList,
 }
 impl Commands {
     pub fn command_str(&self) -> String {
@@ -30,6 +31,7 @@ impl Commands {
             Commands::Refresh => "refresh".to_owned(),
             Commands::Select => "select".to_owned(),
             Commands::Fetch => "fetch".to_owned(),
+            Commands::VariablesList => "variables".to_owned(),
         }
     }
 
@@ -46,6 +48,7 @@ impl Commands {
             Commands::Refresh => "r".to_owned(),
             Commands::Select => "s".to_owned(),
             Commands::Fetch => "f".to_owned(),
+            Commands::VariablesList => "vv".to_owned(),
         }
     }
 
@@ -71,6 +74,7 @@ impl Commands {
                 support_global
             )
             .to_owned(),
+            Commands::VariablesList => format!("List of all templates variables").to_owned(),
         }
     }
 
@@ -138,6 +142,7 @@ impl Commands {
         Commands::print_usage_item(Commands::Version);
         Commands::print_usage_item(Commands::Refresh);
         Commands::print_usage_item(Commands::Select);
+        Commands::print_usage_item(Commands::VariablesList);
         Commands::print_usage_item(Commands::Global);
 
         println!();
@@ -149,7 +154,40 @@ impl Commands {
         println!();
     }
 
-    pub fn is_command(&self, arguments: &HashSet<String>) -> bool {
+    pub fn is_command_from_set(&self, arguments: &HashSet<String>) -> bool {
         arguments.contains(&self.command_str()) || arguments.contains(&self.command_str_short())
+    }
+
+    pub fn is_command(argument: &str) -> bool {
+        let commands = vec![
+            Commands::New,
+            Commands::Edit,
+            Commands::Delete,
+            Commands::Publish,
+            Commands::Unpublish,
+            Commands::Help,
+            Commands::Version,
+            Commands::Global,
+            Commands::Refresh,
+            Commands::Select,
+            Commands::Fetch,
+            Commands::VariablesList,
+        ];
+        for command in commands {
+            if argument == command.command_str() || argument == command.command_str_short() {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn return_unknown_arguments(arguments: &Vec<String>) -> Vec<String> {
+        let mut unknown_arguments = vec![];
+        for argument in arguments {
+            if !Commands::is_command(argument) {
+                unknown_arguments.push(argument.to_string());
+            }
+        }
+        unknown_arguments
     }
 }

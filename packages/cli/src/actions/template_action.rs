@@ -6,12 +6,15 @@ use crate::{
         CONFIG_FILE, TEMPLATE_DOCS_URL, TEMPLATE_ROOT_FOLDER, TEMPLATE_SELECT, TEMPLATE_VARIABLE,
     },
     search_folder::SearchFolder,
-    template::{TemplateConfig, TemplateFolder},
+    template::{self, TemplateConfig, TemplateFolder},
     template_file_content::TEMPLATE_FILE_CONTENT,
     template_variable::TemplateVariable,
 };
 use colored::Colorize;
-use std::{collections::HashMap, fs};
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
 pub struct TemplateAction;
 
@@ -46,15 +49,11 @@ impl TemplateAction {
         TemplateAction::template_edit(config, &template_folder, &mut template_config);
     }
 
-    pub fn template_edit(
-        config: &Config,
+    pub fn template_update_select_options(
         template_folder: &TemplateFolder,
         template_config: &mut TemplateConfig,
+        ignore_existing: bool,
     ) {
-        TemplateAction::print_content_file_info();
-        TemplateAction::template_file_info();
-        TemplateAction::new_template_files(config, &template_folder);
-
         let result = SearchFolder::search(&template_folder.path);
 
         let select_variables = result
@@ -67,16 +66,17 @@ impl TemplateAction {
             println!();
             println!(
                 "{}",
-                "📝 Add some values (options) for #select variables".yellow(),
+                "📝 Add some option values for #select variables".yellow(),
             );
             println!();
             println!(
                 "{}",
-                "Note: Enter values separated byt comma (basic, complex, other, etc...)".italic()
+                "Note: Enter select options values separated byt comma (basic, complex, other, etc...)".italic()
             );
             println!();
             let mut select_options = HashMap::new();
             let mut index = 0;
+            let width = 15;
             for (_, variable) in select_variables.iter() {
                 index += 1;
 
@@ -88,17 +88,23 @@ impl TemplateAction {
                     };
 
                 if already_set_value.is_some() {
-                    let is_change = CliCommands::confirm(
-                        "Select options already exist. Do you want to change it?",
-                    );
-                    println!();
-                    if !is_change {
+                    let mut want_to_change = false;
+                    if !ignore_existing {
+                        want_to_change = CliCommands::confirm(&format!(
+                            "📔 Do you want to update {} options? Current values: {}",
+                            &variable.raw_value.cyan().bold().italic(),
+                            already_set_value.unwrap().join(", ").bold().magenta()
+                        ));
+                    }
+
+                    if !want_to_change {
                         println!(
-                            "{} {}",
-                            "Skipping".yellow(),
-                            variable.raw_value.bold().yellow()
+                            "{} {:width$} with option values: {}",
+                            "Skipping".magenta(),
+                            variable.raw_value.bold().yellow(),
+                            already_set_value.unwrap().join(", ").bold().cyan()
                         );
-                        println!();
+
                         select_options.insert(
                             variable.raw_value.to_owned(),
                             already_set_value.unwrap().to_owned(),
@@ -108,7 +114,7 @@ impl TemplateAction {
                 }
                 let result = CliCommands::input_not_empty(
                     &format!(
-                        "📔 {}/{} Enter values for {}",
+                        "📔 {}/{} Enter options values for {}",
                         index,
                         select_variables.len(),
                         &variable.raw_value.cyan().bold().italic()
@@ -124,14 +130,37 @@ impl TemplateAction {
                 let result_vec = result
                     .unwrap()
                     .split(',')
-                    .map(|item| item.to_owned())
+                    .map(|item| item.trim().to_owned())
                     .collect::<Vec<_>>();
+                let result_set = result_vec.iter().collect::<HashSet<_>>();
+                let result_vec = result_set
+                    .iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<_>>();
+
+                println!(
+                    "{} {:width$} with option values: {}",
+                    "Updated".magenta(),
+                    variable.raw_value.bold().yellow(),
+                    result_vec.join(", ").bold().cyan()
+                );
+
                 select_options.insert(variable.raw_value.to_owned(), result_vec);
             }
 
-            template_config.select_options = Some(select_options);
+            template_config.merge_select_options(&select_options);
             template_config.save_template_config(&template_folder);
         }
+    }
+    pub fn template_edit(
+        config: &Config,
+        template_folder: &TemplateFolder,
+        template_config: &mut TemplateConfig,
+    ) {
+        TemplateAction::print_content_file_info();
+        TemplateAction::template_file_info();
+        TemplateAction::new_template_files(config, &template_folder);
+        TemplateAction::template_update_select_options(template_folder, template_config, false);
 
         println!();
         println!(
@@ -344,5 +373,72 @@ impl TemplateAction {
             }
         }
         None
+    }
+
+    pub fn refresh_templates(config: &Config) {
+        let template_folders = &config.template_folders;
+
+        let mut index = 0;
+
+        for template_folder in template_folders {
+            index += 1;
+            println!(
+                "🔄 {}/{} {} {}",
+                index,
+                template_folders.len(),
+                "Refreshing template:".green(),
+                template_folder.name.bold().green()
+            );
+            let mut template_config = TemplateConfig::load_template_config(&template_folder);
+            TemplateAction::template_update_select_options(
+                template_folder,
+                &mut template_config,
+                true,
+            );
+        }
+
+        println!();
+        println!("{}", "✅ All templates refreshed.".green());
+        println!();
+    }
+
+    pub fn list_of_all_variables(config: &Config) {
+        let template_folders = &config.template_folders;
+
+        let mut index = 0;
+        println!();
+        println!("{}", "📚 List of all variables:".bold().green());
+        println!();
+        for template_folder in template_folders {
+            index += 1;
+            println!(
+                "📝 {}/{} {} {}",
+                index,
+                template_folders.len(),
+                "Template:".green(),
+                template_folder.name.bold().green()
+            );
+            let result = SearchFolder::search(&template_folder.path);
+            let variables = result.variables;
+            if variables.is_empty() {
+                println!(
+                    "{} {}",
+                    "🚨 No variables found.".red(),
+                    "Check template file content or paths.".italic()
+                );
+                println!();
+                continue;
+            }
+            for (variable, variable_info) in variables {
+                println!(
+                    "{} {} {} {}",
+                    "📔".magenta(),
+                    variable.bold().yellow(),
+                    "type:".bold().magenta(),
+                    variable_info.template_variable.to_string().bold().cyan()
+                );
+            }
+            println!();
+        }
     }
 }
