@@ -66,7 +66,7 @@ impl TemplateAction {
             println!();
             println!(
                 "{}",
-                "📝 Add some option values for #select variables".yellow(),
+                "📝 Add some option values for __select__ variables".yellow(),
             );
             println!();
             println!(
@@ -176,7 +176,9 @@ impl TemplateAction {
 
     pub fn print_file_steps() {
         let width = 48;
-
+        println!();
+        println!("{}", "Knowledge base:".bold());
+        println!();
         let first_step = format!(
             "{} {}",
             "1. 🐍 Template file".magenta(),
@@ -209,6 +211,13 @@ impl TemplateAction {
             "{} for text inputs and {} for dropdowns selections.",
             TEMPLATE_VARIABLE.bold().magenta(),
             TEMPLATE_SELECT.bold().magenta()
+        );
+        println!();
+        println!(
+            "{} {} {}",
+            "To move templates to another project, simply just copy",
+            TEMPLATE_ROOT_FOLDER.bold().green(),
+            "folder"
         );
     }
     pub fn print_content_file_info() {

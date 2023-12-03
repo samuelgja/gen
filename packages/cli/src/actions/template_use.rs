@@ -102,7 +102,10 @@ impl TemplateUse {
                     if let Some(value) = values_for_keys.get(&key) {
                         let case_value =
                             TemplateUse::get_case_value(true, global_config, &variable, value);
-                        new_path.push(case_value.to_owned());
+
+                        let new_part = part.replace(&variable.raw_value, &case_value);
+
+                        new_path.push(new_part.to_owned());
                     } else {
                         if is_last_part {
                             is_append_mode = true;
@@ -128,8 +131,13 @@ impl TemplateUse {
             }
 
             if is_append_mode {
-                let mut file = fs::OpenOptions::new().append(true).open(&path).unwrap();
-                file.write_all(new_content.as_bytes()).unwrap();
+                if !path.exists() {
+                    fs::write(&path, new_content).unwrap();
+                } else {
+                    let mut file = fs::OpenOptions::new().append(true).open(&path).unwrap();
+                    file.write_all(new_content.as_bytes()).unwrap();
+                }
+
                 continue;
             } else {
                 if path.exists() {
