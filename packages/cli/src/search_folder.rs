@@ -4,6 +4,7 @@ use crate::{
 use rust_search::SearchBuilder;
 use std::{
     collections::HashMap,
+    fmt::format,
     path::{Path, PathBuf},
 };
 
@@ -80,7 +81,7 @@ impl SearchFolder {
         for file in files.iter() {
             let content = std::fs::read_to_string(&file.path).unwrap();
             for variable in TemplateVariableInfo::parse_iter(&content) {
-                let key = variable.raw_value.clone();
+                let key = SearchFolder::get_key(&variable);
                 variables.insert(key, variable);
             }
 
@@ -93,7 +94,7 @@ impl SearchFolder {
                 let part = part.to_str().unwrap();
 
                 for variable in TemplateVariableInfo::parse_iter(part) {
-                    let key = variable.raw_value.clone();
+                    let key = SearchFolder::get_key(&variable);
                     variables.insert(key, variable);
                 }
             }
@@ -105,5 +106,9 @@ impl SearchFolder {
             is_within_one_folder,
             template_config: TemplateConfig::load_template_config_from_path(template_path),
         }
+    }
+
+    pub fn get_key(variable: &TemplateVariableInfo) -> String {
+        return format!("{}_{}", variable.template_variable, variable.var_name,);
     }
 }

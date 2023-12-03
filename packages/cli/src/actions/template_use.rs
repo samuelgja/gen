@@ -15,6 +15,11 @@ impl TemplateUse {
         value: &str,
     ) -> String {
         if variable.case_type.is_not_unknown() {
+            println!(
+                "Using case type: {} for value: {}",
+                variable.case_type.to_str_name().magenta().bold(),
+                value.cyan().bold()
+            );
             return variable.case_type.from_str_type(value);
         };
 
@@ -43,7 +48,7 @@ impl TemplateUse {
         let mut values_for_keys = HashMap::new();
 
         for (key, variable) in result.variables {
-            let var_name = &variable.raw_value;
+            let var_name = SearchFolder::get_key(&variable);
             if variable.template_variable.is_var() {
                 let text = format!("Add value for {}", &var_name.green().bold());
                 let result = CliCommands::input_not_empty(&text, "Please provide some value", None);
@@ -77,7 +82,7 @@ impl TemplateUse {
             let content = std::fs::read_to_string(&file.path).unwrap();
             let mut new_content = content.clone();
             for variable in TemplateVariableInfo::parse_iter(&content) {
-                let key = variable.raw_value.clone();
+                let key = SearchFolder::get_key(&variable);
                 if let Some(value) = values_for_keys.get(&key) {
                     let case_value =
                         TemplateUse::get_case_value(false, global_config, &variable, value);
@@ -93,7 +98,7 @@ impl TemplateUse {
                 let part = part.to_str().unwrap();
                 let is_last_part = index == length - 1;
                 if let Some(variable) = TemplateVariableInfo::from_str(part) {
-                    let key = variable.raw_value.clone();
+                    let key = SearchFolder::get_key(&variable);
                     if let Some(value) = values_for_keys.get(&key) {
                         let case_value =
                             TemplateUse::get_case_value(true, global_config, &variable, value);

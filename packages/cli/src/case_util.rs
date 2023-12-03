@@ -34,25 +34,23 @@ impl CaseType {
     }
 
     pub fn from_str_type(&self, value: &str) -> String {
-        let snake_case = value.is_case(Case::Snake);
-        let kebab_case = value.is_case(Case::Kebab);
-        let camel_case = value.is_case(Case::Camel);
-        let pascal_case = value.is_case(Case::Pascal);
-
-        if snake_case {
-            return value.to_case(Case::Snake);
-        }
-        if kebab_case {
-            return value.to_case(Case::Kebab);
-        }
-        if camel_case {
-            return value.to_case(Case::Camel);
-        }
-        if pascal_case {
-            return value.to_case(Case::Pascal);
-        }
-
-        return value.to_string();
+        match self {
+            CaseType::SnakeCase => {
+                return value.to_case(Case::Snake);
+            }
+            CaseType::KebabCase => {
+                return value.to_case(Case::Kebab);
+            }
+            CaseType::CamelCase => {
+                return value.to_case(Case::Camel);
+            }
+            CaseType::PascalCase => {
+                return value.to_case(Case::Pascal);
+            }
+            CaseType::Unknown => {
+                return value.to_string();
+            }
+        };
     }
 
     pub fn is_not_unknown(&self) -> bool {
