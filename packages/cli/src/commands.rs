@@ -117,7 +117,7 @@ impl Commands {
         println!(
             "{:width$}: {}",
             "__var__".green().bold(),
-            "Simple as __var__ or __var__1, __var__2, __var__3, ..., or __var___anything",
+            "Simple as __var__ or __var__1, __var__2, __var__3, ..., or __var__anything",
         );
         println!(
             "{:width$}: {}",
@@ -127,7 +127,7 @@ impl Commands {
         println!(
             "{:width$}: {}",
             "Case support".green().bold(),
-            "__var__ and #select also support suffix with casing. _kebab, _snake, _camel, _pascal.\nFor example __var___kebab or #select_author_camel. So case words are reserved.",
+            "__var__ and #select also support suffix with casing. _kebab, _snake, _camel, _pascal.\nFor example __var__kebab or #select_author_camel. So case words are reserved.",
         );
         println!();
         println!("{}", "🧩 Commands:".bold().magenta());

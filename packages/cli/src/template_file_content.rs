@@ -6,8 +6,8 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
  
 ### Using variables:
  1. Basic -> __var__
- 2. Basic with custom naming -> __var___some
- 4. Variables also supports case type prefix -> __var___kebab__, __var___pascal__, __var___camel__, __var___snake__ or __var___my_name_snake
+ 2. Basic with custom naming -> __var__some
+ 4. Variables also supports case type prefix -> __var__kebab__, __var__pascal__, __var__camel__, __var__snake__ or __var__my_name_snake
  5. For dropdowns selections -> #select
  6. It's same as __var__, expect that template folder contain config json which should contains array of available values.
  7. Same variable rules is applied for template paths as well.
@@ -17,7 +17,7 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
    pub struct __var__;
 
    fn main () {
-        let __var___snake__ = __var__ {};
+        let __var__snake__ = __var__ {};
    }
    
 ```
@@ -27,7 +27,7 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
    type __var__ struct {}
 
    func main () {
-        __var___camel__ := __var__{}
+        __var__camel__ := __var__{}
    }
    
 ```
@@ -38,7 +38,7 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
         constructor () {}
    }
    
-   const __var___camel__ = new __var__();
+   const __var__camel__ = new __var__();
    
 ```
 
@@ -48,7 +48,7 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
         def __init__(self):
             pass
    
-   __var___snake__ = __var__()
+   __var__snake__ = __var__()
    
 ```
 
@@ -58,7 +58,7 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
         public __var__ () {}
    }
    
-   var __var___pascal__ = new __var__();
+   var __var__pascal__ = new __var__();
    
 ```
 
@@ -68,7 +68,7 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
         public function __construct() {}
    }
    
-   $__var___snake__ = new __var__();
+   $__var__snake__ = new __var__();
    
 ```
 etc...

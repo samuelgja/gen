@@ -130,7 +130,6 @@ impl CliParser {
         }
 
         if Commands::Fetch.is_command_from_set(&arguments) {
-            println!("FUCK___");
             if let Some(url) = second_argument {
                 TemplateFetch::fetch_github(config, url);
                 return;

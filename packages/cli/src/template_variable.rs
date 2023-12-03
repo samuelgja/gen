@@ -292,5 +292,11 @@ mod tests {
         assert_eq!(result.var_name, "abc123");
         assert_eq!(result.case_type, CaseType::KebabCase);
         assert_eq!(result.is_auto, true);
+
+        let result = TemplateVariableInfo::from_str("__var__kebab__").unwrap();
+        assert_eq!(result.template_variable, TemplateVariable::Var);
+        assert_eq!(result.var_name, "");
+        assert_eq!(result.case_type, CaseType::KebabCase);
+        assert_eq!(result.raw_value, "__var__kebab__");
     }
 }
