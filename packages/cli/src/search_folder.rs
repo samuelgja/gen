@@ -76,7 +76,7 @@ impl SearchFolder {
         for file in files.iter() {
             let content = std::fs::read_to_string(&file.path).unwrap();
             for variable in TemplateVariableInfo::parse_iter(&content) {
-                let key = format!("{}-{}", variable.template_variable, variable.index);
+                let key = format!("{}-{}", variable.template_variable, variable.var_name);
                 variables.insert(key, variable);
             }
 
@@ -89,7 +89,7 @@ impl SearchFolder {
                 let part = part.to_str().unwrap();
 
                 for variable in TemplateVariableInfo::parse_iter(part) {
-                    let key = format!("{}-{}", variable.template_variable, variable.index);
+                    let key = format!("{}-{}", variable.template_variable, variable.var_name);
                     variables.insert(key, variable);
                 }
             }

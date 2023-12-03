@@ -9,13 +9,13 @@ pub const CLI_HOMEPAGE: &str = env!("CARGO_PKG_HOMEPAGE");
 pub const CONFIG_FILE: &str = "_.json";
 
 pub const TEMPLATE_DOCS_URL: &str = "https://github.com/samuelgja/gen";
-pub const TEMPLATE_VARIABLE: &str = "#var";
-pub const TEMPLATE_SELECT: &str = "#select";
+pub const TEMPLATE_VARIABLE: &str = "__var__";
+pub const TEMPLATE_SELECT: &str = "__select__";
 pub const TEMPLATE_ROOT_FOLDER: &str = ".gen";
 
 lazy_static! {
     // it can match TEMPLATE_VARIABLE or TEMPLATE_VARIABLE + any number
     // it can also be in format - #var1 or #var2 or
-    pub static ref TEMPLATE_VARIABLE_REGEX: Regex = Regex::new(r"\#var(\d+)?").unwrap();
-    pub static ref TEMPLATE_SELECT_REGEX: Regex = Regex::new(r"\#select(\d+)?").unwrap();
+    pub static ref TEMPLATE_VARIABLE_REGEX: Regex = Regex::new(r"(__var__|__select__)((?:[a-zA-Z0-9]+__))?((?:[a-zA-Z0-9]+__))?((?:[a-zA-Z0-9]+__))?").unwrap();
+
 }
