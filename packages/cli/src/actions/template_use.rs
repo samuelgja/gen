@@ -3,11 +3,34 @@ use crate::{
     template::TemplateFolder, template_variable::TemplateVariableInfo,
 };
 use colored::Colorize;
-use std::{collections::HashMap, fs};
+use std::{collections::HashMap, fs, io::Write};
 
 pub struct TemplateUse;
 
 impl TemplateUse {
+    fn get_case_value(
+        is_file_path: bool,
+        config: &Config,
+        variable: &TemplateVariableInfo,
+        value: &str,
+    ) -> String {
+        if variable.case_type.is_not_unknown() {
+            return variable.case_type.from_str_type(value);
+        };
+
+        let case_type_from_config = if is_file_path {
+            &config.config.case_type.file
+        } else {
+            &config.config.case_type.content
+        };
+
+        if case_type_from_config.is_not_unknown() {
+            return case_type_from_config.from_str_type(value);
+        }
+
+        value.to_string()
+    }
+
     pub fn use_it(global_config: &Config, config: &Config, template_folder: &TemplateFolder) {
         let result = SearchFolder::search(&template_folder.path);
         println!();
@@ -56,26 +79,35 @@ impl TemplateUse {
             for variable in TemplateVariableInfo::parse_iter(&content) {
                 let key = variable.raw_value.clone();
                 if let Some(value) = values_for_keys.get(&key) {
-                    new_content = new_content.replace(&variable.raw_value, value);
+                    let case_value =
+                        TemplateUse::get_case_value(false, global_config, &variable, value);
+                    new_content = new_content.replace(&variable.raw_value, &case_value);
                 }
             }
 
             let mut new_path = Vec::new();
-            println!(
-                "what file: {}",
-                file.template_path.to_str().unwrap().green()
-            );
-            for part in file.template_path.iter() {
-                let part = part.to_str().unwrap();
+            let mut is_append_mode = false;
 
+            let length = file.template_path.iter().count();
+            for (index, part) in file.template_path.iter().enumerate() {
+                let part = part.to_str().unwrap();
+                let is_last_part = index == length - 1;
                 if let Some(variable) = TemplateVariableInfo::from_str(part) {
                     let key = variable.raw_value.clone();
                     if let Some(value) = values_for_keys.get(&key) {
-                        new_path.push(value.to_owned());
+                        let case_value =
+                            TemplateUse::get_case_value(true, global_config, &variable, value);
+                        new_path.push(case_value.to_owned());
                     } else {
+                        if is_last_part {
+                            is_append_mode = true;
+                        }
                         new_path.push(part.to_string());
                     }
                 } else {
+                    if is_last_part {
+                        is_append_mode = true;
+                    }
                     new_path.push(part.to_string());
                 }
             }
@@ -84,8 +116,32 @@ impl TemplateUse {
 
             println!("Writing file: {}", path.to_str().unwrap().green());
 
-            fs::create_dir_all(path.parent().unwrap()).unwrap();
-            fs::write(path, new_content).unwrap();
+            if let Some(parent) = path.parent() {
+                if !parent.exists() {
+                    fs::create_dir_all(parent).unwrap();
+                }
+            }
+
+            if is_append_mode {
+                let mut file = fs::OpenOptions::new().append(true).open(&path).unwrap();
+                file.write_all(new_content.as_bytes()).unwrap();
+                continue;
+            } else {
+                if path.exists() {
+                    let can_overwrite = CliCommands::confirm(&format!(
+                        "File {} already exists. Do you want to overwrite?",
+                        path.to_str().unwrap()
+                    ));
+                    if can_overwrite {
+                        fs::write(&path, new_content).unwrap();
+                    }
+                } else {
+                    fs::write(&path, new_content).unwrap();
+                }
+            }
         }
+
+        println!();
+        println!("{}", "Done!".green());
     }
 }
