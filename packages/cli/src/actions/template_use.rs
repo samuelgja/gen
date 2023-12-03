@@ -3,7 +3,7 @@ use crate::{
     template::TemplateFolder, template_variable::TemplateVariableInfo,
 };
 use colored::Colorize;
-use std::collections::HashMap;
+use std::{collections::HashMap, fs};
 
 pub struct TemplateUse;
 
@@ -83,6 +83,9 @@ impl TemplateUse {
             let path = cwd.join(new_path.join(separator));
 
             println!("Writing file: {}", path.to_str().unwrap().green());
+
+            fs::create_dir_all(path.parent().unwrap()).unwrap();
+            fs::write(path, new_content).unwrap();
         }
     }
 }
