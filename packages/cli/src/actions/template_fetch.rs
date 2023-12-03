@@ -85,7 +85,7 @@ impl TemplateFetch {
             let destination = &config.path;
 
             if !destination.exists() {
-                fs::create_dir_all(&destination).unwrap();
+                fs::create_dir_all(destination).unwrap();
             }
 
             let move_result =
@@ -96,8 +96,7 @@ impl TemplateFetch {
             }
 
             println!(
-                "{} {}",
-                "✅ Template folder copied successfully:",
+                "✅ Template folder copied successfully: {}",
                 git_template_folder.name.green().bold()
             );
         }

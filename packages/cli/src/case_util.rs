@@ -36,21 +36,21 @@ impl CaseType {
     pub fn from_str_type(&self, value: &str) -> String {
         match self {
             CaseType::SnakeCase => {
-                return value.to_case(Case::Snake);
+                value.to_case(Case::Snake)
             }
             CaseType::KebabCase => {
-                return value.to_case(Case::Kebab);
+                value.to_case(Case::Kebab)
             }
             CaseType::CamelCase => {
-                return value.to_case(Case::Camel);
+                value.to_case(Case::Camel)
             }
             CaseType::PascalCase => {
-                return value.to_case(Case::Pascal);
+                value.to_case(Case::Pascal)
             }
             CaseType::Unknown => {
-                return value.to_string();
+                value.to_string()
             }
-        };
+        }
     }
 
     pub fn is_not_unknown(&self) -> bool {

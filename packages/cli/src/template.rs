@@ -97,7 +97,7 @@ impl TemplateConfig {
         config
     }
     pub fn load_template_config(template_folder: &TemplateFolder) -> TemplateConfig {
-        return TemplateConfig::load_template_config_from_path(&template_folder.path);
+        TemplateConfig::load_template_config_from_path(&template_folder.path)
     }
 
     pub fn save_template_config(&self, template_folder: &TemplateFolder) {

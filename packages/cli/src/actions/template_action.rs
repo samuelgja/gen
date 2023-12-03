@@ -152,7 +152,7 @@ impl TemplateAction {
             }
 
             template_config.merge_select_options(&select_options);
-            template_config.save_template_config(&template_folder);
+            template_config.save_template_config(template_folder);
         }
     }
     pub fn template_edit(
@@ -162,7 +162,7 @@ impl TemplateAction {
     ) {
         TemplateAction::print_content_file_info();
         TemplateAction::template_file_info();
-        TemplateAction::new_template_files(config, &template_folder);
+        TemplateAction::new_template_files(config, template_folder);
         TemplateAction::template_update_select_options(template_folder, template_config, false);
 
         println!();
@@ -214,10 +214,8 @@ impl TemplateAction {
         );
         println!();
         println!(
-            "{} {} {}",
-            "To move templates to another project, simply just copy",
-            TEMPLATE_ROOT_FOLDER.bold().green(),
-            "folder"
+            "To move templates to another project, simply just copy {} folder",
+            TEMPLATE_ROOT_FOLDER.bold().green()
         );
     }
     pub fn print_content_file_info() {
@@ -401,7 +399,7 @@ impl TemplateAction {
                 "Refreshing template:".green(),
                 template_folder.name.bold().green()
             );
-            let mut template_config = TemplateConfig::load_template_config(&template_folder);
+            let mut template_config = TemplateConfig::load_template_config(template_folder);
             TemplateAction::template_update_select_options(
                 template_folder,
                 &mut template_config,

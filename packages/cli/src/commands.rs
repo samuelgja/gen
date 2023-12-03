@@ -74,7 +74,7 @@ impl Commands {
                 support_global
             )
             .to_owned(),
-            Commands::VariablesList => format!("List of all templates variables").to_owned(),
+            Commands::VariablesList => "List of all templates variables".to_string().to_owned(),
         }
     }
 
@@ -94,12 +94,9 @@ impl Commands {
         println!("{}", "🤷🏻 How it works?".bold().magenta());
         println!();
         println!(
-            "{} {} {} {} {}",
-            "Easy to use template generator for any code any project with support of having private / public github templates, website templates & more.\nTo quick start start with",  
+            "Easy to use template generator for any code any project with support of having private / public github templates, website templates & more.\nTo quick start start with {} and then {} commands. To see more, check out the usage below:",  
             "new".bold().green(),
-            "and then",
             "select".bold().green(),
-            "commands. To see more, check out the usage below:",
 
         );
 
@@ -115,19 +112,16 @@ impl Commands {
         );
         println!();
         println!(
-            "{:width$}: {}",
+            "{:width$}: Simple as __var__ or __var__something1__, __var__2__, __var__3__, ..., or __var__anything",
             "__var__".green().bold(),
-            "Simple as __var__ or __var__something1__, __var__2__, __var__3__, ..., or __var__anything",
         );
         println!(
-            "{:width$}: {}",
+            "{:width$}: Simple as __select__ or __select__something1__, __select__2__, __select__3__, ..., or __select___anything",
             "__select__".green().bold(),
-            "Simple as __select__ or __select__something1__, __select__2__, __select__3__, ..., or __select___anything",
         );
         println!(
-            "{:width$}: {}",
+            "{:width$}: __var__ and __select__ also support casing. kebab__, snake__, camel__, pascal__.\nFor example __var__kebab__ or __select___author__camel__. So case words are reserved.",
             "Case support".green().bold(),
-            "__var__ and __select__ also support casing. kebab__, snake__, camel__, pascal__.\nFor example __var__kebab__ or __select___author__camel__. So case words are reserved.",
         );
         println!();
         println!("{}", "🧩 Commands:".bold().magenta());

@@ -44,7 +44,7 @@ impl CliParser {
     pub fn parse() {
         let vec_arguments: Vec<String> = env::args().skip(1).collect();
         let vec_arguments_cloned = Commands::return_unknown_arguments(&vec_arguments);
-        let second_argument = &vec_arguments_cloned.get(0);
+        let second_argument = &vec_arguments_cloned.first();
         let arguments: HashSet<String> = HashSet::from_iter(vec_arguments);
         let is_global = Commands::Global.is_command_from_set(&arguments);
         let cwd = env::current_dir().unwrap();
@@ -87,7 +87,7 @@ impl CliParser {
         }
 
         if Commands::Version.is_command_from_set(&arguments) {
-            println!("{} {}", "Version:", CLI_VERSION.bold());
+            println!("Version: {}", CLI_VERSION.bold());
             return;
         }
 
@@ -97,7 +97,7 @@ impl CliParser {
                 CliParser::edit_create_selected_template(config, &template_folder);
                 return;
             }
-            TemplateAction::new_template(&config);
+            TemplateAction::new_template(config);
             return;
         }
 
@@ -154,7 +154,7 @@ impl CliParser {
                 return;
             }
 
-            TemplateUse::use_it(&global_config, &config, &template_folder);
+            TemplateUse::use_it(&global_config, config, &template_folder);
 
             return;
         }
@@ -196,7 +196,6 @@ impl CliParser {
                 loading.success("Template removed.".green());
                 loading.end();
             }
-            return;
         }
     }
 
@@ -226,7 +225,7 @@ impl CliParser {
                 .yellow()
             );
         }
-        return false;
+        false
     }
     fn get_list(config: &Config) -> Result<TemplateFolder, ()> {
         let template_folders = config
@@ -234,15 +233,15 @@ impl CliParser {
             .iter()
             .map(|item| item.name.to_owned())
             .collect::<Vec<_>>();
-        if template_folders.len() == 0 {
+        if template_folders.is_empty() {
             println!();
             println!("{}", "🚨 There are no templates created yet.".red());
             println!();
             return Err(());
         }
         println!();
-        let selected = CliCommands::select("📝 Select template to use", &config.template_folders);
-        selected
+        
+        CliCommands::select("📝 Select template to use", &config.template_folders)
     }
 
     fn edit_create_selected_template(config: &Config, template_folder: &TemplateFolder) {
@@ -254,10 +253,10 @@ impl CliParser {
         );
         println!();
         println!("{}", text);
-        let mut template_config = TemplateConfig::load_template_config(&template_folder);
+        let mut template_config = TemplateConfig::load_template_config(template_folder);
         template_config.name = template_folder.name.to_owned();
-        template_config.save_template_config(&template_folder);
-        TemplateAction::template_edit(&config, &template_folder, &mut template_config);
+        template_config.save_template_config(template_folder);
+        TemplateAction::template_edit(config, template_folder, &mut template_config);
     }
 
     fn get_template(config: &Config, template_name: &str) -> Option<TemplateFolder> {
@@ -316,9 +315,7 @@ impl CliParser {
             .collect::<Vec<_>>();
         sorted_template_folders.sort_by(|a, b| b.1.cmp(&a.1));
         let template_folder = sorted_template_folders.first();
-        if template_folder.is_none() {
-            return None;
-        }
+        template_folder?;
         let template_folder = template_folder.unwrap();
         Some(template_folder.0.to_owned())
     }

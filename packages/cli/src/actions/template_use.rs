@@ -36,11 +36,11 @@ impl TemplateUse {
         value.to_string()
     }
 
-    pub fn use_it(global_config: &Config, config: &Config, template_folder: &TemplateFolder) {
+    pub fn use_it(global_config: &Config, _config: &Config, template_folder: &TemplateFolder) {
         let result = SearchFolder::search(&template_folder.path);
         println!();
         println!("Using template: {}", template_folder.name.green().bold());
-        if result.template_config.description.len() > 0 {
+        if !result.template_config.description.is_empty() {
             println!();
             println!("Description: {}", result.template_config.description);
         }
@@ -139,18 +139,16 @@ impl TemplateUse {
                 }
 
                 continue;
-            } else {
-                if path.exists() {
-                    let can_overwrite = CliCommands::confirm(&format!(
-                        "File {} already exists. Do you want to overwrite?",
-                        path.to_str().unwrap()
-                    ));
-                    if can_overwrite {
-                        fs::write(&path, new_content).unwrap();
-                    }
-                } else {
+            } else if path.exists() {
+                let can_overwrite = CliCommands::confirm(&format!(
+                    "File {} already exists. Do you want to overwrite?",
+                    path.to_str().unwrap()
+                ));
+                if can_overwrite {
                     fs::write(&path, new_content).unwrap();
                 }
+            } else {
+                fs::write(&path, new_content).unwrap();
             }
         }
 

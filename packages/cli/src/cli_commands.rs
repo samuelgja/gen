@@ -9,7 +9,7 @@ use std::{
 };
 
 impl CliCommands {
-    pub fn input(text: &str, default: Option<&str>) -> Result<String, String> {
+    pub fn input(text: &str, _default: Option<&str>) -> Result<String, String> {
         // initial text will be green
         let result = Text::new(&format!("{}:", text)).prompt();
 
@@ -22,7 +22,7 @@ impl CliCommands {
     pub fn input_not_empty(
         text: &str,
         error_msg: &str,
-        default: Option<&str>,
+        _default: Option<&str>,
     ) -> Result<String, String> {
         loop {
             let result = Text::new(&format!("{}:", text)).prompt();

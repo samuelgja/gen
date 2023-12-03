@@ -108,6 +108,6 @@ impl SearchFolder {
     }
 
     pub fn get_key(variable: &TemplateVariableInfo) -> String {
-        return format!("{}_{}", variable.template_variable, variable.var_name,);
+        format!("{}_{}", variable.template_variable, variable.var_name,)
     }
 }
