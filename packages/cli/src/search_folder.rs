@@ -1,12 +1,9 @@
 use crate::{
     constants::CONFIG_FILE, template::TemplateConfig, template_variable::TemplateVariableInfo,
 };
+use indexmap::IndexMap;
 use rust_search::SearchBuilder;
-use std::{
-    collections::HashMap,
-    fmt::format,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 pub struct SearchFolder;
 
@@ -20,7 +17,7 @@ pub struct SearchItem {
 #[derive(Debug)]
 pub struct SearchResult {
     pub files: Vec<SearchItem>,
-    pub variables: HashMap<String, TemplateVariableInfo>,
+    pub variables: IndexMap<String, TemplateVariableInfo>,
     pub is_within_one_folder: bool,
     pub template_config: TemplateConfig,
 }
@@ -65,7 +62,7 @@ impl SearchFolder {
 
     pub fn search(template_path: &PathBuf) -> SearchResult {
         let files = SearchFolder::search_files(template_path);
-        let mut variables = HashMap::new();
+        let mut variables = IndexMap::new();
 
         if files.is_empty() {
             return SearchResult {
@@ -99,6 +96,8 @@ impl SearchFolder {
                 }
             }
         }
+
+        variables.sort_keys();
 
         SearchResult {
             files,
