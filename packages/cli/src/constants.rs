@@ -15,7 +15,7 @@ pub const TEMPLATE_ROOT_FOLDER: &str = ".gen";
 
 lazy_static! {
     // it can match TEMPLATE_VARIABLE or TEMPLATE_VARIABLE + any number
-    // it can also be in format - #var1 or #var2 or
+    // it can also be in format - __var__1 or __var__2 or
     pub static ref TEMPLATE_VARIABLE_REGEX: Regex = Regex::new(r"(__var__|__select__)((?:[a-zA-Z0-9]+__))?((?:[a-zA-Z0-9]+__))?((?:[a-zA-Z0-9]+__))?").unwrap();
 
 }

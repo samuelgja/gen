@@ -5,7 +5,7 @@ use std::{
     collections::HashMap,
     fmt::{Display, Formatter},
     fs,
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -85,8 +85,8 @@ impl TemplateConfig {
         }
     }
 
-    pub fn load_template_config(template_folder: &TemplateFolder) -> TemplateConfig {
-        let config_path = template_folder.path.join(CONFIG_FILE);
+    pub fn load_template_config_from_path(path: &Path) -> TemplateConfig {
+        let config_path = path.join(CONFIG_FILE);
         let config_content = fs::read_to_string(config_path);
 
         if config_content.is_err() {
@@ -95,6 +95,9 @@ impl TemplateConfig {
         let config_content = config_content.unwrap();
         let config: TemplateConfig = serde_json::from_str(&config_content).unwrap();
         config
+    }
+    pub fn load_template_config(template_folder: &TemplateFolder) -> TemplateConfig {
+        return TemplateConfig::load_template_config_from_path(&template_folder.path);
     }
 
     pub fn save_template_config(&self, template_folder: &TemplateFolder) {

@@ -1,5 +1,5 @@
 use crate::{
-    actions::{TemplateAction, TemplateFetch},
+    actions::{TemplateAction, TemplateFetch, TemplateUse},
     cli_commands::CliCommands,
     commands::Commands,
     config::{Config, ConfigFile},
@@ -112,32 +112,10 @@ impl CliParser {
             }
             let template_folder = template_folder.unwrap();
 
-            let is_template_folder_exist = config
-                .template_folders
-                .iter()
-                .any(|item| item.name == template_folder.name);
-            if !is_template_folder_exist {
-                println!();
-                println!(
-                    "{} {}",
-                    "🚨 Template does not exist:".red(),
-                    template_folder.name
-                );
-                println!();
-                let similar_word_match =
-                    CliParser::get_similar_word_match(config, &template_folder.name);
-                if similar_word_match.is_some() {
-                    println!(
-                        "{}",
-                        format!(
-                            "🤔 Did you mean {}?",
-                            similar_word_match.unwrap().name.bold().green()
-                        )
-                        .yellow()
-                    );
-                }
+            if !CliParser::is_exist_and_prompt(config, &template_folder) {
                 return;
             }
+
             CliParser::edit_create_selected_template(config, &template_folder);
             return;
         }
@@ -165,7 +143,7 @@ impl CliParser {
 
         if Commands::Use.is_command_from_set(&arguments) {
             let template_folder = if let Some(template_name) = second_argument {
-                Ok(TemplateFolder::new(config, template_name))
+                Ok(TemplateFolder::new_empty(config, template_name))
             } else {
                 CliParser::get_list(config)
             };
@@ -173,12 +151,18 @@ impl CliParser {
                 return;
             }
             let template_folder = template_folder.unwrap();
+            if !CliParser::is_exist_and_prompt(config, &template_folder) {
+                return;
+            }
+
+            TemplateUse::use_it(&global_config, &config, &template_folder);
+
             return;
         }
 
         if Commands::Delete.is_command_from_set(&arguments) {
             let template_folder = if let Some(template_name) = second_argument {
-                Ok(TemplateFolder::new(config, template_name))
+                Ok(TemplateFolder::new_empty(config, template_name))
             } else {
                 CliParser::get_list(config)
             };
@@ -217,6 +201,34 @@ impl CliParser {
         }
     }
 
+    fn is_exist_and_prompt(config: &Config, template_folder: &TemplateFolder) -> bool {
+        let is_template_folder_exist = config
+            .template_folders
+            .iter()
+            .any(|item| item.name == template_folder.name);
+        if is_template_folder_exist {
+            return true;
+        }
+        println!();
+        println!(
+            "{} {}",
+            "🚨 Template does not exist:".red(),
+            template_folder.name
+        );
+        println!();
+        let similar_word_match = CliParser::get_similar_word_match(config, &template_folder.name);
+        if similar_word_match.is_some() {
+            println!(
+                "{}",
+                format!(
+                    "🤔 Did you mean {}?",
+                    similar_word_match.unwrap().name.bold().green()
+                )
+                .yellow()
+            );
+        }
+        return false;
+    }
     fn get_list(config: &Config) -> Result<TemplateFolder, ()> {
         let template_folders = config
             .template_folders
@@ -291,6 +303,7 @@ impl CliParser {
             template_name_char = template_name_chars.next();
             template_name_to_match_char = template_name_to_match_chars.next();
         }
+
         score
     }
 
@@ -300,6 +313,7 @@ impl CliParser {
             .template_folders
             .iter()
             .map(|item| (item, CliParser::get_fuzzy_score(&item.name, template_name)))
+            .filter(|item| item.1 > 0)
             .collect::<Vec<_>>();
         sorted_template_folders.sort_by(|a, b| b.1.cmp(&a.1));
         let template_folder = sorted_template_folders.first();

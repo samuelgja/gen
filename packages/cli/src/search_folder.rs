@@ -1,4 +1,6 @@
-use crate::{constants::CONFIG_FILE, template_variable::TemplateVariableInfo};
+use crate::{
+    constants::CONFIG_FILE, template::TemplateConfig, template_variable::TemplateVariableInfo,
+};
 use rust_search::SearchBuilder;
 use std::{
     collections::HashMap,
@@ -19,6 +21,7 @@ pub struct SearchResult {
     pub files: Vec<SearchItem>,
     pub variables: HashMap<String, TemplateVariableInfo>,
     pub is_within_one_folder: bool,
+    pub template_config: TemplateConfig,
 }
 
 impl SearchFolder {
@@ -68,6 +71,7 @@ impl SearchFolder {
                 files,
                 variables,
                 is_within_one_folder: false,
+                template_config: TemplateConfig::load_template_config_from_path(template_path),
             };
         }
 
@@ -76,7 +80,7 @@ impl SearchFolder {
         for file in files.iter() {
             let content = std::fs::read_to_string(&file.path).unwrap();
             for variable in TemplateVariableInfo::parse_iter(&content) {
-                let key = format!("{}-{}", variable.template_variable, variable.var_name);
+                let key = variable.raw_value.clone();
                 variables.insert(key, variable);
             }
 
@@ -89,7 +93,7 @@ impl SearchFolder {
                 let part = part.to_str().unwrap();
 
                 for variable in TemplateVariableInfo::parse_iter(part) {
-                    let key = format!("{}-{}", variable.template_variable, variable.var_name);
+                    let key = variable.raw_value.clone();
                     variables.insert(key, variable);
                 }
             }
@@ -99,6 +103,7 @@ impl SearchFolder {
             files,
             variables,
             is_within_one_folder,
+            template_config: TemplateConfig::load_template_config_from_path(template_path),
         }
     }
 }

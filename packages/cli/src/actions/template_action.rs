@@ -79,6 +79,9 @@ impl TemplateAction {
             let width = 15;
             for (_, variable) in select_variables.iter() {
                 index += 1;
+                if variable.is_auto {
+                    continue;
+                }
 
                 let already_set_value =
                     if let Some(select_options) = &template_config.select_options {

@@ -5,70 +5,70 @@ pub const TEMPLATE_FILE_CONTENT: &str = r#"
  2. Edit, save & that's it!
  
 ### Using variables:
- 1. Basic -> #var
- 2. Basic with custom naming -> #var_some
- 4. Variables also supports case type prefix -> #var_kebab, #var_pascal, #var_camel, #var_snake or #var_my_name_snake
+ 1. Basic -> __var__
+ 2. Basic with custom naming -> __var___some
+ 4. Variables also supports case type prefix -> __var___kebab__, __var___pascal__, __var___camel__, __var___snake__ or __var___my_name_snake
  5. For dropdowns selections -> #select
- 6. It's same as #var, expect that template folder contain config json which should contains array of available values.
+ 6. It's same as __var__, expect that template folder contain config json which should contains array of available values.
  7. Same variable rules is applied for template paths as well.
 
 #### Example rust:
 ```rust
-   pub struct #var;
+   pub struct __var__;
 
    fn main () {
-        let #var_snake = #var {};
+        let __var___snake__ = __var__ {};
    }
    
 ```
 
 #### Example go:
 ```go
-   type #var struct {}
+   type __var__ struct {}
 
    func main () {
-        #var_camel := #var{}
+        __var___camel__ := __var__{}
    }
    
 ```
 
 #### Example typescript:
 ```typescript
-   class #var {
+   class __var__ {
         constructor () {}
    }
    
-   const #var_camel = new #var();
+   const __var___camel__ = new __var__();
    
 ```
 
 #### Example python:
 ```python
-   class #var:
+   class __var__:
         def __init__(self):
             pass
    
-   #var_snake = #var()
+   __var___snake__ = __var__()
    
 ```
 
 #### Example java:
 ```java
-   public class #var {
-        public #var () {}
+   public class __var__ {
+        public __var__ () {}
    }
    
-   var #var_pascal = new #var();
+   var __var___pascal__ = new __var__();
    
 ```
 
 #### Example php:
 ```php
-   class #var {
+   class __var__ {
         public function __construct() {}
    }
    
-   $#var_snake = new #var();
+   $__var___snake__ = new __var__();
    
 ```
 etc...
