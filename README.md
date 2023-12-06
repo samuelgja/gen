@@ -16,8 +16,8 @@ curl -sSL https://raw.githubusercontent.com/samuelgja/gen/main/install.sh | sh
 Or you can download the repo and build binary directly.
 
 ## 🤔 Why Gen?
+- 📚 **Easy to Use**: Create and use your own template in matter of seconds.
 - 🛠 **Efficient Template Management**: Tackle repetitive code across different projects with ease.
-- 🖥️ **For Various IDEs**: Works seamlessly with your favorite IDEs.
 - 📁 **Versatile Templates**: From UI components to data models and boilerplate code.
 
 ## 🔧 How Gen Enhances IDE Templates
@@ -113,3 +113,9 @@ Imagine a UI component template in `.gen/my-template`:
 For detailed instructions and updates, visit: [Gen GitHub Page](https://github.com/samuelgja/gen)
 
 
+
+
+### Roadmap
+1. Currently `fetch` is in BETA, and it's plan to fetch any template from any URL for easy manage.
+2. Store templates in cloud, and share with others.
+3. Cleanup cli prints
