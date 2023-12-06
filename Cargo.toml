@@ -5,6 +5,7 @@ members = ["packages/cli"]
 [profile.release]
 lto = "fat"
 codegen-units = 1
+# build binary will be moved to releases/latest
 
 
 [workspace.dependencies]
