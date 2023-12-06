@@ -81,13 +81,23 @@ impl TemplateUse {
             }
             let content = std::fs::read_to_string(&file.path).unwrap();
             let mut new_content = content.clone();
+
+            let mut replace_vec = Vec::new();
             for variable in TemplateVariableInfo::parse_iter(&content) {
                 let key = SearchFolder::get_key(&variable);
                 if let Some(value) = values_for_keys.get(&key) {
                     let case_value =
                         TemplateUse::get_case_value(false, global_config, &variable, value);
-                    new_content = new_content.replace(&variable.raw_value, &case_value);
+
+                    replace_vec.push((variable.raw_value.clone(), case_value));
                 }
+            }
+
+            // need to sort by length to avoid replacing the wrong values
+            // it start with the longest value
+            replace_vec.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+            for (old, new) in replace_vec {
+                new_content = new_content.replace(&old, &new);
             }
 
             let mut new_path = Vec::new();
