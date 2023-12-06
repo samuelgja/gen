@@ -15,11 +15,6 @@ impl TemplateUse {
         value: &str,
     ) -> String {
         if variable.case_type.is_not_unknown() {
-            println!(
-                "Using case type: {} for value: {}",
-                variable.case_type.to_str_name().magenta().bold(),
-                value.cyan().bold()
-            );
             return variable.case_type.from_string_to_case(value);
         };
 
