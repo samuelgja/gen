@@ -240,7 +240,7 @@ impl CliParser {
             return Err(());
         }
         println!();
-        
+
         CliCommands::select("📝 Select template to use", &config.template_folders)
     }
 

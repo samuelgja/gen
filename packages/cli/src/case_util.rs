@@ -35,21 +35,11 @@ impl CaseType {
 
     pub fn from_str_type(&self, value: &str) -> String {
         match self {
-            CaseType::SnakeCase => {
-                value.to_case(Case::Snake)
-            }
-            CaseType::KebabCase => {
-                value.to_case(Case::Kebab)
-            }
-            CaseType::CamelCase => {
-                value.to_case(Case::Camel)
-            }
-            CaseType::PascalCase => {
-                value.to_case(Case::Pascal)
-            }
-            CaseType::Unknown => {
-                value.to_string()
-            }
+            CaseType::SnakeCase => value.to_case(Case::Snake),
+            CaseType::KebabCase => value.to_case(Case::Kebab),
+            CaseType::CamelCase => value.to_case(Case::Camel),
+            CaseType::PascalCase => value.to_case(Case::Pascal),
+            CaseType::Unknown => value.to_string(),
         }
     }
 
