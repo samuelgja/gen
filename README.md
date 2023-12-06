@@ -5,6 +5,8 @@
 ## 🌟 Introduction
 Gen is your go-to tool for creating, managing, and using code templates across various programming languages and projects. Say goodbye to repetitive coding!
 
+![](how.webp)
+
 
 ## 📦 Installation
 ```bash
