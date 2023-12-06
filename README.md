@@ -3,6 +3,14 @@
 ## 🌟 Introduction
 Gen is your go-to tool for creating, managing, and using code templates across various programming languages and projects. Say goodbye to repetitive coding!
 
+
+## 📦 Installation
+```bash
+curl -sSL https://raw.githubusercontent.com/samuelgja/gen/main/install.sh | sh
+```
+
+Or you can download the repo and build binary directly.
+
 ## 🤔 Why Gen?
 - 🛠 **Efficient Template Management**: Tackle repetitive code across different projects with ease.
 - 🖥️ **For Various IDEs**: Works seamlessly with your favorite IDEs.
