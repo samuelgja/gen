@@ -113,7 +113,8 @@ Imagine a UI component template in `.gen/my-template`:
 For detailed instructions and updates, visit: [Gen GitHub Page](https://github.com/samuelgja/gen)
 
 
-
+### Why again?
+I was frustrated how many times and in how many languages I had to create same files again and again and again. So I created this tool to help me with that :)
 
 ### Roadmap
 1. Currently `fetch` is in BETA, and it's plan to fetch any template from any URL for easy manage.
