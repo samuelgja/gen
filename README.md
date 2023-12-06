@@ -1,4 +1,6 @@
 # 🚀 Gen: Simplify Your Code Templates
+[![Build](https://github.com/samuelgja/gen/actions/workflows/build.yml/badge.svg)](https://github.com/samuelgja/gen/actions/workflows/build.yml)
+[![Code check](https://github.com/samuelgja/gen/actions/workflows/code-check.yml/badge.svg)](https://github.com/samuelgja/gen/actions/workflows/code-check.yml)
 
 ## 🌟 Introduction
 Gen is your go-to tool for creating, managing, and using code templates across various programming languages and projects. Say goodbye to repetitive coding!
