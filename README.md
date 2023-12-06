@@ -21,18 +21,6 @@ Unlike standard IDE templates that are limited to single files, Gen allows for a
 - ✍️ **Content**: The template itself.
 - 🖊️ **Variables**: Dynamic placeholders in the template.
 
-## 📝 Example
-Imagine a UI component template in `.gen/my-template`:
-1. **UI Main Component**:
-   - Path: `src/components/__var__/__var__.tsx`
-   - Content: [Your UI Code Here]
-2. **UI Component Test**:
-   - Path: `src/components/__var__/__var__.test.tsx`
-   - Content: [Your Test Code Here]
-3. **Index File Update**:
-   - Path: `src/components/index.ts`
-   - Content: [Your Index File Code Here]
-
 ## 📚 Gen Commands
 - 🆕 `gen new`: Create a new template.
 - 📝 `gen edit`: Edit an existing template.
@@ -71,6 +59,43 @@ Template variables are dynamic elements in both your template path and content. 
   const __var__pascal__ = __var__kebab__;
 ```
 
+
+## 📝 Example
+Imagine a UI component template in `.gen/my-template`:
+1. **UI Main Component**:
+   - Path: `src/components/__var__/__var__.tsx`
+   - Content: 
+   ```tsx
+        import React from 'react';
+        import { __var__pascal__Props } from './__var__';
+    
+        const __var__pascal__: React.FC<__var__pascal__Props> = ({}) => {
+        return <div></div>;
+        };
+    
+        export default __var__pascal__;
+    ```
+2. **UI Component Test**:
+   - Path: `src/components/__var__/__var__.test.tsx`
+   - Content:  
+   ```tsx
+        import React from 'react';
+        import { render } from '@testing-library/react';
+        import __var__pascal__ from './__var__kebab__';
+    
+        describe('<__var__pascal__ />', () => {
+            it('should render successfully', () => {
+                const { baseElement } = render(<__var__pascal__ />);
+                expect(baseElement).toBeTruthy();
+            });
+        });
+    ```
+3. **Index File Update**:
+   - Path: `src/components/index.ts`
+   - Content: 
+   ```tsx
+        export * from './__var__kebab/__var__kebab';
+    ```
 
 ## 🔗 More Info
 For detailed instructions and updates, visit: [Gen GitHub Page](https://github.com/samuelgja/gen)
