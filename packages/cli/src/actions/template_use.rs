@@ -20,7 +20,7 @@ impl TemplateUse {
                 variable.case_type.to_str_name().magenta().bold(),
                 value.cyan().bold()
             );
-            return variable.case_type.from_str_type(value);
+            return variable.case_type.from_string_to_case(value);
         };
 
         let case_type_from_config = if is_file_path {
@@ -30,7 +30,7 @@ impl TemplateUse {
         };
 
         if case_type_from_config.is_not_unknown() {
-            return case_type_from_config.from_str_type(value);
+            return case_type_from_config.from_string_to_case(value);
         }
 
         value.to_string()

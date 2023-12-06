@@ -33,7 +33,7 @@ impl CaseType {
         CaseType::Unknown
     }
 
-    pub fn from_str_type(&self, value: &str) -> String {
+    pub fn from_string_to_case(&self, value: &str) -> String {
         match self {
             CaseType::SnakeCase => value.to_case(Case::Snake),
             CaseType::KebabCase => value.to_case(Case::Kebab),

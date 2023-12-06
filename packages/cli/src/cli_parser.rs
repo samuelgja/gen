@@ -259,35 +259,6 @@ impl CliParser {
         TemplateAction::template_edit(config, template_folder, &mut template_config);
     }
 
-    fn get_template(config: &Config, template_name: &str) -> Option<TemplateFolder> {
-        let template_folder = config
-            .template_folders
-            .iter()
-            .find(|item| item.name == template_name);
-        if template_folder.is_none() {
-            println!();
-            println!(
-                "{}",
-                format!("🚨 Template {} does not exist", template_name).red()
-            );
-
-            let similar_word_match = CliParser::get_similar_word_match(config, template_name);
-            if similar_word_match.is_some() {
-                println!(
-                    "{}",
-                    format!(
-                        "🤔 Did you mean {}?",
-                        similar_word_match.unwrap().name.bold().green()
-                    )
-                    .yellow()
-                );
-            }
-            return None;
-        }
-        let template_folder = template_folder.unwrap();
-        Some(template_folder.to_owned())
-    }
-
     fn get_fuzzy_score(template_name: &str, template_name_to_match: &str) -> i64 {
         let mut score = 0;
         let mut template_name_chars = template_name.chars();
